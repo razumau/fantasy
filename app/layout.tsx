@@ -4,9 +4,9 @@ import { ClerkProvider } from '@clerk/nextjs'
 
 export const metadata = {
   metadataBase: new URL('https://postgres-prisma.vercel.app'),
-  title: 'Vercel Postgres Demo with Prisma',
+  title: 'Fantasy',
   description:
-    'A simple Next.js app with Vercel Postgres as the database and Prisma as the ORM',
+    'Description',
 }
 
 const inter = Inter({
