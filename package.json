@@ -1,8 +1,8 @@
 {
-  "name": "postgres-prisma",
-  "repository": "https://github.com/vercel/examples.git",
+  "name": "fantasy-chgk",
+  "repository": "https://github.com/razumau/fantasy.git",
   "license": "MIT",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "prisma generate && next dev",
