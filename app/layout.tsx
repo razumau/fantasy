@@ -11,7 +11,7 @@ export const metadata = {
 
 const inter = Inter({
   variable: '--font-inter',
-  subsets: ['latin'],
+  subsets: ['latin', 'cyrillic-ext'],
   display: 'swap',
 })
 
