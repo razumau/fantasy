@@ -39,3 +39,4 @@ yarn-error.log*
 *.tsbuildinfo
 
 .idea
+prisma/dev.db
