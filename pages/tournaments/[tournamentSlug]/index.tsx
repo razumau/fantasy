@@ -14,7 +14,7 @@ interface Team {
 }
 
 interface TournamentTeamsPageProps {
-    tournament: Tournament | null;
+    tournament: Tournament;
     teams: Team[];
 }
 
@@ -23,11 +23,11 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
     const tournament = await fetchTournamentBySlug(tournamentSlug);
     if (!tournament) {
         return {
-            props: {
-                tournament: null,
-                teams: [],
-            }
-        }
+            redirect: {
+                destination: '/404',
+                permanent: false,
+            },
+        };
     }
 
     const teams = await fetchTeamsForTournament(tournament.id);
@@ -41,13 +41,6 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
 };
 
 const TournamentTeamsPage: FC<TournamentTeamsPageProps> = ({ tournament, teams }) => {
-    if (!tournament) {
-        return (
-            <div>
-                No tournament found for this URL.
-            </div>
-        )
-    }
     return (
         <div>
             <h1>Teams for {tournament.title}</h1>
