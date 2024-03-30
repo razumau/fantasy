@@ -1,46 +1,61 @@
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { FC } from 'react';
-import { fetchTournamentBySlug } from "@/src/services/tournamentService";
+import { fetchTournamentBySlug, fetchTeamsForTournament } from "@/src/services/tournamentService";
 
 interface Tournament {
     id: string;
-    name: string;
+    title: string;
     slug: string;
 }
 
 interface Team {
-    id: string;
-    name: string;
+    id: number;
+    tournamentId: number;
 }
 
 interface TournamentTeamsPageProps {
-    tournament: Tournament;
+    tournament: Tournament | null;
     teams: Team[];
 }
 
 export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-    // Assume these functions are implemented elsewhere and return the correct types.
     const { tournamentSlug } = context.params as { tournamentSlug: string };
     const tournament = await fetchTournamentBySlug(tournamentSlug);
-    // const teams = await fetchTeamsForTournament(tournament.id);
+    if (!tournament) {
+        return {
+            props: {
+                tournament: null,
+                teams: [],
+            }
+        }
+    }
+
+    const teams = await fetchTeamsForTournament(tournament.id);
 
     return {
         props: {
-            tournament: {slug: tournamentSlug},
-            // teams,
+            tournament,
+            teams,
         },
     };
 };
 
 const TournamentTeamsPage: FC<TournamentTeamsPageProps> = ({ tournament, teams }) => {
+    if (!tournament) {
+        return (
+            <div>
+                No tournament found for this URL.
+            </div>
+        )
+    }
     return (
         <div>
-            <h1>Teams for {tournament.slug}</h1>
-            {/*<ul>*/}
-            {/*    {teams.map(team => (*/}
-            {/*        <li key={team.id}>{team.name}</li>*/}
-            {/*    ))}*/}
-            {/*</ul>*/}
+            <h1>Teams for {tournament.title}</h1>
+            <ul>
+                {teams.map(team => (
+                    <li key={team.id}>{team.name}</li>
+                ))}
+            </ul>
         </div>
     );
 };

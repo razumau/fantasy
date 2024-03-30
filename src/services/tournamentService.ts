@@ -7,10 +7,18 @@ const prisma = new PrismaClient();
 //     slug: string;
 // }
 
-export async function fetchTournamentBySlug(slug: string): Promise<any> {
-    // Implementation depends on your backend or API
-    const tournament = await prisma.tournament.findUnique({
-        where: { slug }
+export async function fetchTournamentBySlug(slug: string) {
+    return prisma.tournament.findUnique({
+        where: { slug },
+        select: {
+            title: true,
+            id: true
+        }
     });
-    return tournament;
+}
+
+export async function fetchTeamsForTournament(tournamentId: number) {
+    return prisma.team.findMany({
+        where: {tournamentId}
+    });
 }
