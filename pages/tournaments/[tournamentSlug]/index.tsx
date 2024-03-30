@@ -1,6 +1,7 @@
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { FC } from 'react';
 import { fetchTournamentBySlug, fetchTeamsForTournament } from "@/src/services/tournamentService";
+import TeamsTable from "@/components/table"
 
 interface Tournament {
     id: string;
@@ -10,7 +11,8 @@ interface Tournament {
 
 interface Team {
     id: number;
-    tournamentId: number;
+    name: string;
+    price: number;
 }
 
 interface TournamentTeamsPageProps {
@@ -43,12 +45,8 @@ export const getServerSideProps: GetServerSideProps = async (context: GetServerS
 const TournamentTeamsPage: FC<TournamentTeamsPageProps> = ({ tournament, teams }) => {
     return (
         <div>
-            <h1>Teams for {tournament.title}</h1>
-            <ul>
-                {teams.map(team => (
-                    <li key={team.id}>{team.name}</li>
-                ))}
-            </ul>
+            <h1>{tournament.title}</h1>
+            <TeamsTable teams={teams} maxTeams={5} maxPrice={150}></TeamsTable>
         </div>
     );
 };
