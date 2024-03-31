@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { savePicks } from '@/app/actions'
 
 interface Team {
     id: number;
     name: string;
     price: number;
+    tournamentId: number;
 }
 
 interface SelectionState {
@@ -20,36 +22,32 @@ interface TeamTableProps {
 const TeamsTable: React.FC<TeamTableProps> = ({ teams, maxTeams, maxPrice }) => {
     const [selection, setSelection] = useState<SelectionState>({ selectedTeams: [], totalSelectedPrice: 0 });
 
-    const handleCheckboxChange = (selectedTeam: Team) => {
-        setSelection((currentState) => {
-            const isAlreadySelected = currentState.selectedTeams.find(team => team.id === selectedTeam.id);
+    const handleCheckboxChange = async (selectedTeam: Team) => {
+        const removingTeam = selection.selectedTeams.find(team => team.id === selectedTeam.id);
+        let newState: SelectionState;
 
-            if (isAlreadySelected) {
-                const updatedTeams = currentState.selectedTeams.filter(team => team.id !== selectedTeam.id);
-                const updatedTotalPrice = updatedTeams.reduce((acc, team) => acc + team.price, 0);
-                return { selectedTeams: updatedTeams, totalSelectedPrice: updatedTotalPrice };
-            } else {
-                if (currentState.selectedTeams.length < maxTeams && (currentState.totalSelectedPrice + selectedTeam.price) <= maxPrice) {
-                    const updatedTeams = [...currentState.selectedTeams, selectedTeam];
-                    const updatedTotalPrice = currentState.totalSelectedPrice + selectedTeam.price;
-                    return { selectedTeams: updatedTeams, totalSelectedPrice: updatedTotalPrice };
-                }
+        if (removingTeam) {
+            newState = {
+                selectedTeams: selection.selectedTeams.filter(team => team.id !== selectedTeam.id),
+                totalSelectedPrice: selection.totalSelectedPrice - selectedTeam.price
             }
-            return currentState;
-        });
-    };
-
-    const handleSave = async () => {
-        const response = await fetch('/api/save-picks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ids: selection.selectedTeams.map(team => team.id) }),
-        });
-
-        if (response.ok) {
-            console.log('Selections saved successfully');
         } else {
-            console.error('Failed to save selections');
+            if (selection.selectedTeams.length < maxTeams && (selection.totalSelectedPrice + selectedTeam.price) <= maxPrice) {
+                newState = {
+                    selectedTeams: [...selection.selectedTeams, selectedTeam],
+                    totalSelectedPrice: selection.totalSelectedPrice + selectedTeam.price
+                }
+            } else {
+                newState = selection;
+            }
+        }
+        const previousState = selection;
+        setSelection(newState);
+
+        try {
+            await savePicks(newState.selectedTeams.map(({ id, tournamentId }) => ({ id, tournamentId })));
+        } catch {
+            setSelection(previousState);
         }
     };
 
