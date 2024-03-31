@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 
 export const metadata = {
-  metadataBase: new URL('https://postgres-prisma.vercel.app'),
+  metadataBase: new URL('https://fantasy.razumau.net'),
   title: 'Fantasy',
   description:
     'Description',
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-      <body>{children}</body>
+      <body className={inter.variable}>{children}</body>
       </html>
     </ClerkProvider>
   )
