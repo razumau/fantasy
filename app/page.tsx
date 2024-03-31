@@ -1,7 +1,5 @@
 import { auth, clerkClient, UserButton } from "@clerk/nextjs";
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma'
 
 export default async function Home() {
     const { userId } = auth();
