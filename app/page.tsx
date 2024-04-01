@@ -30,8 +30,6 @@ export default async function Home() {
                 name: name
             },
         });
-
-        console.log(newUser);
     }
 
     return (
