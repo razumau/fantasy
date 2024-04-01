@@ -35,7 +35,6 @@ model Team {
   id           Int         @id @default(autoincrement())
   tournamentId Int
   tournament   Tournament  @relation(fields: [tournamentId], references: [id])
-  picks        Pick[]
   name         String
   price        Int
   points       Int         @default(0)
@@ -45,10 +44,10 @@ model Pick {
   id           Int      @id @default(autoincrement())
   userId       Int
   tournamentId Int
-  teamId       Int
+  teamIds      String
+  version      Int
   user         User     @relation(fields: [userId], references: [id])
   tournament   Tournament @relation(fields: [tournamentId], references: [id])
-  team         Team     @relation(fields: [teamId], references: [id])
 
-  @@unique([userId, tournamentId, teamId])
+  @@unique([userId, tournamentId])
 }
