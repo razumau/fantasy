@@ -12,10 +12,11 @@ interface SelectionState {
 interface TeamsSelectorProps {
     teams: Team[];
     tournament: Tournament;
+    picks: Team[];
 }
 
-export default function TeamsSelector({ teams, tournament }: TeamsSelectorProps) {
-    const [selection, setSelection] = useState<SelectionState>({ selectedTeams: [], totalSelectedPrice: 0 });
+export default function TeamsSelector({ teams, tournament, picks }: TeamsSelectorProps) {
+    const [selection, setSelection] = useState<SelectionState>({ selectedTeams: picks, totalSelectedPrice: 0 });
 
     const handleCheckboxChange = async (selectedTeam: Team) => {
         const removingTeam = selection.selectedTeams.find(team => team.id === selectedTeam.id);
