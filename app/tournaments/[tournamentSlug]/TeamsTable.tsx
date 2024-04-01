@@ -53,8 +53,6 @@ const TeamsTable: React.FC<TeamTableProps> = ({ teams, maxTeams, maxPrice }) => 
 
     return (
         <div>
-            <p>Points available: {maxPrice - selection.totalSelectedPrice}</p>
-            <p>Points used: {selection.totalSelectedPrice}</p>
             <table className="bg-blue-50">
                 <tbody>
                 {teams.map((team) => (
