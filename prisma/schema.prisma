@@ -25,6 +25,8 @@ model Tournament {
   teams      Team[]
   picks      Pick[]
   slug       String   @default(uuid()) @unique
+  maxTeams   Int      @default(5)
+  maxPrice   Int      @default(150)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
