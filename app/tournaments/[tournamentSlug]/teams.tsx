@@ -1,13 +1,13 @@
 'use client'
 
 import TeamsSelector from "./TeamsSelector";
-import {Tournament, Team} from "./types";
+import {Tournament, Team, Picks} from "./types";
 import { UserButton } from "@clerk/nextjs";
 
 interface TournamentTeamsPageProps {
     tournament: Tournament;
     teams: Team[];
-    picks: Team[];
+    picks: Picks;
 }
 
 export default function TournamentTeamsPage({ tournament, teams, picks }: TournamentTeamsPageProps) {

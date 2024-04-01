@@ -2,21 +2,23 @@ import { useState } from 'react';
 import TeamsTable from "./TeamsTable";
 import SelectedTeams from "./SelectedTeams";
 import {savePicks} from "@/app/actions";
-import {Tournament, Team} from "./types";
+import {Tournament, Team, Picks} from "./types";
 
 interface SelectionState {
     selectedTeams: Team[];
     totalSelectedPrice: number;
+    version: number;
 }
 
 interface TeamsSelectorProps {
     teams: Team[];
     tournament: Tournament;
-    picks: Team[];
+    picks: Picks;
 }
 
 export default function TeamsSelector({ teams, tournament, picks }: TeamsSelectorProps) {
-    const [selection, setSelection] = useState<SelectionState>({ selectedTeams: picks, totalSelectedPrice: 0 });
+    const [selection, setSelection] = useState<SelectionState>(
+        { selectedTeams: picks.teams, totalSelectedPrice: picks.totalSelectedPrice, version: picks.version });
 
     const handleCheckboxChange = async (selectedTeam: Team) => {
         const removingTeam = selection.selectedTeams.find(team => team.id === selectedTeam.id);
@@ -25,14 +27,16 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
         if (removingTeam) {
             newState = {
                 selectedTeams: selection.selectedTeams.filter(team => team.id !== selectedTeam.id),
-                totalSelectedPrice: selection.totalSelectedPrice - selectedTeam.price
+                totalSelectedPrice: selection.totalSelectedPrice - selectedTeam.price,
+                version: selection.version + 1,
             }
         } else {
             if (selection.selectedTeams.length < tournament.maxTeams
                     && (selection.totalSelectedPrice + selectedTeam.price) <= tournament.maxPrice) {
                 newState = {
                     selectedTeams: [...selection.selectedTeams, selectedTeam],
-                    totalSelectedPrice: selection.totalSelectedPrice + selectedTeam.price
+                    totalSelectedPrice: selection.totalSelectedPrice + selectedTeam.price,
+                    version: selection.version + 1,
                 }
             } else {
                 newState = selection;
@@ -44,7 +48,8 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
         try {
             await savePicks({
                 teamIds: newState.selectedTeams.map(team => team.id),
-                tournamentId: tournament.id
+                tournamentId: tournament.id,
+                version: newState.version
             });
         } catch {
             setSelection(previousState);

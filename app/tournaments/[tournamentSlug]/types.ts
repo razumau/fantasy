@@ -10,3 +10,9 @@ export interface Team {
     name: string;
     price: number;
 }
+
+export interface Picks {
+    teams: Team[];
+    version: number;
+    totalSelectedPrice: number;
+}
