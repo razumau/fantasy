@@ -1,17 +1,7 @@
 'use client'
 
-import TeamsTable from "@/components/table";
-
-type Tournament = {
-    id: number;
-    title: string;
-}
-
-interface Team {
-    id: number;
-    name: string;
-    price: number;
-}
+import TeamsSelector from "./TeamsSelector";
+import {Tournament, Team} from "./types";
 
 interface TournamentTeamsPageProps {
     tournament: Tournament;
@@ -29,23 +19,8 @@ export default function TournamentTeamsPage({ tournament, teams }: TournamentTea
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="flex flex-col md:flex-row gap-4">
-                {/* Table */}
-                <div className="flex-grow md:w-2/3 bg-white shadow rounded-lg p-4">
-                    <h2 className="font-semibold text-xl mb-4">Table Title</h2>
-                    <TeamsTable teams={teams} maxTeams={5} maxPrice={150}></TeamsTable>
-                </div>
-
-                {/* Information Box */}
-                <div className="md:w-1/3 bg-white shadow rounded-lg p-4">
-                    <h2 className="font-semibold text-xl mb-4">Information Box</h2>
-                    {/* Dynamic content goes here */}
-                    <p className="mb-2">This is a paragraph with some information.</p>
-                    <p className="mb-2">Here's another paragraph with additional information.</p>
-                    {/* Add or remove paragraphs based on user actions */}
-                </div>
-            </div>
+            <TeamsSelector teams={teams} tournament={tournament}>
+            </TeamsSelector>
         </div>
     );
 };
