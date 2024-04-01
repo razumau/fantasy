@@ -41,9 +41,10 @@ export default function TeamsSelector({ teams, tournament }: TeamsSelectorProps)
         setSelection(newState);
 
         try {
-            await savePicks(newState.selectedTeams.map(
-                team => ({ id: team.id, tournamentId: tournament.id })
-            ));
+            await savePicks({
+                teamIds: newState.selectedTeams.map(team => team.id),
+                tournamentId: tournament.id
+            });
         } catch {
             setSelection(previousState);
         }
