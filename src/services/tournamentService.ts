@@ -1,17 +1,13 @@
 import prisma from '@/lib/prisma'
-//
-// interface Tournament {
-//     id: string;
-//     name: string;
-//     slug: string;
-// }
 
 export async function fetchTournamentBySlug(slug: string) {
     return prisma.tournament.findUnique({
         where: { slug },
         select: {
             title: true,
-            id: true
+            id: true,
+            maxPrice: true,
+            maxTeams: true
         }
     });
 }
