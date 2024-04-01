@@ -2,6 +2,7 @@
 
 import { auth } from "@clerk/nextjs";
 import prisma from '@/lib/prisma';
+import { fetchOrCreateUser } from '@/src/services/userService'
 
 type Team = {
     id: number;
@@ -23,12 +24,12 @@ type PicksInput = {
 }
 
 export async function savePicks({ teamIds, tournamentId }: PicksInput) {
-    const clerkUser = auth();
-    if (!clerkUser?.userId) {
+    const clerkUserId = auth().userId;
+    if (!clerkUserId) {
         throw new Error('User not authenticated');
     }
 
-    const userId = await fetchOrCreateUser(clerkUser);
+    const userId = await fetchOrCreateUser(clerkUserId);
     const tournament = await fetchTournament(tournamentId);
 
     if (!tournament) {
@@ -61,28 +62,10 @@ export async function savePicks({ teamIds, tournamentId }: PicksInput) {
         }
     })
 
-    return { message: "saved" }
+    return { message: "picks saved" }
 }
 
-async function fetchOrCreateUser(clerkUser) {
-    const user = await prisma.user.findUnique({
-        where: { clerkId: clerkUser.userId },
-        select: { id: true }
-    });
 
-    if (user) {
-        return user.id;
-    }
-
-    const name = clerkUser.username || `${clerkUser.firstName} ${clerkUser.lastName}`;
-    const newUser = await prisma.user.create({
-        data: {
-            clerkId: userId,
-            name: name
-        },
-    });
-    return newUser.id;
-}
 
 async function fetchTournament(tournamentId: number) {
     return prisma.tournament.findUnique({
