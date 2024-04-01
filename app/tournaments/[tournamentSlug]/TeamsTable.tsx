@@ -10,7 +10,7 @@ type TeamsTableProps = {
 export default function TeamsTable({ teams, selectedTeamIds, handleCheckboxChange }: TeamsTableProps) {
     return (
         <div>
-            <table className="bg-blue-50">
+            <table>
                 <tbody>
                 {teams.map((team) => (
                     <tr key={team.id}>
@@ -18,7 +18,7 @@ export default function TeamsTable({ teams, selectedTeamIds, handleCheckboxChang
                             <input
                                 type="checkbox"
                                 checked={selectedTeamIds.some(id => id === team.id)}
-                                onChange={(e) => handleCheckboxChange(team)}
+                                onChange={(_e) => handleCheckboxChange(team)}
                             />
                         </td>
                         <td>{team.name}</td>
