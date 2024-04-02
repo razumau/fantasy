@@ -3,6 +3,7 @@ import TeamsTable from "./TeamsTable";
 import SelectedTeams from "./SelectedTeams";
 import {savePicks} from "@/app/actions";
 import {Tournament, Team, Picks} from "./types";
+import { Box, Grid, Flex } from '@chakra-ui/react';
 
 interface SelectionState {
     selectedTeams: Team[];
@@ -62,18 +63,24 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
     const selectedTeamIds = selection.selectedTeams.map(team => team.id);
 
     return (
-        <>
-            <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-grow md:w-2/3 bg-white shadow rounded-lg p-4">
+        <Box px={4} py={8}>
+            <Grid
+                templateColumns={{ base: "repeat(1, 1fr)", md: "repeat(3, 1fr)" }}
+                gap={4}
+            >
+                <Box display={{ base: "block", md: "block" }} order={{ base: 1, md: 3 }}>
+                    <SelectedTeams teams={selection.selectedTeams}></SelectedTeams>
+                </Box>
+
+                <Box order={{ base: 2, md: 2 }}>
                     <TeamsTable teams={teams}
                                 selectedTeamIds={selectedTeamIds}
                                 handleCheckboxChange={handleCheckboxChange}
                     />
-                </div>
-            </div>
-            <div className="md:w-1/3 bg-white shadow rounded-lg p-4">
-                <SelectedTeams teams={selection.selectedTeams}></SelectedTeams>
-            </div>
-        </>
+                </Box>
+
+                <Box display={{ base: "none", md: "block" }} order={{ md: 1 }}></Box>
+            </Grid>
+        </Box>
     )
 }

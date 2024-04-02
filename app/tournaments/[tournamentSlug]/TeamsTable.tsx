@@ -1,5 +1,6 @@
 import React from 'react';
 import { Team } from "@/app/tournaments/[tournamentSlug]/types";
+import { Table, Tr, Td, Tbody, TableContainer, Checkbox } from '@chakra-ui/react'
 
 type TeamsTableProps = {
     teams: Team[];
@@ -9,24 +10,23 @@ type TeamsTableProps = {
 
 export default function TeamsTable({ teams, selectedTeamIds, handleCheckboxChange }: TeamsTableProps) {
     return (
-        <div>
-            <table>
-                <tbody>
-                {teams.map((team) => (
-                    <tr key={team.id}>
-                        <td>
-                            <input
-                                type="checkbox"
-                                checked={selectedTeamIds.some(id => id === team.id)}
-                                onChange={(_e) => handleCheckboxChange(team)}
-                            />
-                        </td>
-                        <td>{team.name}</td>
-                        <td>{team.price}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </div>
+        <TableContainer>
+            <Table variant='simple'>
+                <Tbody>
+                    {teams.map((team) => (
+                        <Tr key={team.id}>
+                            <Td>
+                                <Checkbox
+                                    isChecked={selectedTeamIds.some(id => id === team.id)}
+                                    onChange={(_e) => handleCheckboxChange(team)}
+                                />
+                            </Td>
+                            <Td>{team.name}</Td>
+                            <Td isNumeric>{team.price}</Td>
+                        </Tr>
+                    ))}
+                </Tbody>
+            </Table>
+        </TableContainer>
     );
 }
