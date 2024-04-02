@@ -3,6 +3,7 @@
 import TeamsSelector from "./TeamsSelector";
 import {Tournament, Team, Picks} from "./types";
 import { UserButton } from "@clerk/nextjs";
+import {Box, Flex, Heading} from "@chakra-ui/react";
 
 interface TournamentTeamsPageProps {
     tournament: Tournament;
@@ -12,16 +13,13 @@ interface TournamentTeamsPageProps {
 
 export default function TournamentTeamsPage({ tournament, teams, picks }: TournamentTeamsPageProps) {
     return (
-        <div className="min-h-screen bg-gray-100 p-4">
-            <div className="mb-4 flex justify-between items-center">
-                <h1 className="text-2xl font-bold">{tournament.title}</h1>
-                <div className="text-right">
-                    <UserButton/>
-                </div>
-            </div>
-
+        <Box minH="100vh">
+            <Flex justifyContent="flex-end" p={4}>
+                <UserButton/>
+            </Flex>
+            <Heading>{tournament.title}</Heading>
             <TeamsSelector teams={teams} tournament={tournament} picks={picks}>
             </TeamsSelector>
-        </div>
+        </Box>
     );
 };
