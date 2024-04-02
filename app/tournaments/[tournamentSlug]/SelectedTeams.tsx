@@ -6,7 +6,10 @@ export default function SelectedTeams({ teams }: Team[]) {
             <p>{team.name} ({team.price})</p>
         </li>
     )
+    const pricesSum = teams.reduce((sum, team) => sum + team.price, 0);
     return (
-        <ul>{teamsList}</ul>
+        <><p>Spent {pricesSum} points</p>
+            <ul>{teamsList}</ul>
+        </>
     )
 }
