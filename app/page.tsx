@@ -13,7 +13,6 @@ export default async function Home() {
     }
 
     const clerkUser = await clerkClient.users.getUser(userId);
-    console.log(clerkUser);
 
     const dbUser = await prisma.user.findUnique({
         where: {
