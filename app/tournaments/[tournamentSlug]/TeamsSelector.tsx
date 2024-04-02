@@ -42,7 +42,10 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                 newState = selection;
             }
         }
-        const previousState = selection;
+        if (selection.version == newState.version) {
+            return;
+        }
+
         setSelection(newState);
 
         try {
@@ -52,7 +55,7 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                 version: newState.version
             });
         } catch {
-            setSelection(previousState);
+            setSelection(selection);
         }
     };
 
