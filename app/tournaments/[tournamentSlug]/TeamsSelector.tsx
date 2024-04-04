@@ -87,7 +87,7 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                 gap={4}
             >
                 <Box display={{ base: "block", md: "block" }} order={{ base: 1, md: 3 }}>
-                    <SelectedTeams teams={selection.selectedTeams}></SelectedTeams>
+                    <SelectedTeams teams={selection.selectedTeams} maxPrice={tournament.maxPrice}/>
                 </Box>
 
                 <Box order={{ base: 2, md: 2 }}>

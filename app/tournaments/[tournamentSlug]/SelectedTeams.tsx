@@ -1,7 +1,12 @@
 import { Team } from './types'
-import { Card, CardHeader, CardBody, CardFooter, Text, List, ListItem } from '@chakra-ui/react'
+import { Card, CardBody, Text, List, ListItem, Progress } from '@chakra-ui/react'
 
-export default function SelectedTeams({ teams }: Team[]) {
+interface SelectedTeams {
+    teams: Team[];
+    maxPrice: number;
+}
+
+export default function SelectedTeams({ teams, maxPrice }: SelectedTeams) {
     const teamsList = teams.map(team =>
         <ListItem key={team.id}>
             <Text>{team.name} ({team.price})</Text>
@@ -11,8 +16,9 @@ export default function SelectedTeams({ teams }: Team[]) {
     return (
         <Card>
             <CardBody>
-                <CardHeader>Spent {pricesSum} points</CardHeader>
-                <List spacing={3}>{teamsList}</List>
+                <Text pb={4}>Spent {pricesSum} points</Text>
+                <Progress value={pricesSum * 100 / maxPrice} />
+                <List pt={4} spacing={3}>{teamsList}</List>
             </CardBody>
         </Card>
 )
