@@ -17,9 +17,8 @@ export default function TournamentTeamsPage({ tournament, teams, picks }: Tourna
             <Flex justifyContent="flex-end" p={4}>
                 <UserButton/>
             </Flex>
-            <Heading>{tournament.title}</Heading>
-            <TeamsSelector teams={teams} tournament={tournament} picks={picks}>
-            </TeamsSelector>
+            <Heading textAlign={'center'} mx={2}>{tournament.title}</Heading>
+            <TeamsSelector teams={teams} tournament={tournament} picks={picks}/>
         </Box>
     );
 };
