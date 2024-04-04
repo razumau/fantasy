@@ -3,7 +3,7 @@ import TeamsTable from "./TeamsTable";
 import SelectedTeams from "./SelectedTeams";
 import {savePicks} from "@/app/actions";
 import {Tournament, Team, Picks} from "./types";
-import { Box, Grid, Flex } from '@chakra-ui/react';
+import { Box, Grid, useToast } from '@chakra-ui/react';
 
 interface SelectionState {
     selectedTeams: Team[];
@@ -20,8 +20,20 @@ interface TeamsSelectorProps {
 export default function TeamsSelector({ teams, tournament, picks }: TeamsSelectorProps) {
     const [selection, setSelection] = useState<SelectionState>(
         { selectedTeams: picks.teams, totalSelectedPrice: picks.totalSelectedPrice, version: picks.version });
+    const toast = useToast();
+
+    const showError = (message: string) => {
+        toast({
+            title: message,
+            isClosable: true,
+            status: 'error',
+            duration: 5000,
+            position: 'top'
+        })
+    }
 
     const handleCheckboxChange = async (selectedTeam: Team) => {
+        toast.closeAll();
         const removingTeam = selection.selectedTeams.find(team => team.id === selectedTeam.id);
         let newState: SelectionState;
 
@@ -41,6 +53,12 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                 }
             } else {
                 newState = selection;
+                if (selection.selectedTeams.length >= tournament.maxTeams) {
+                    showError("Too many teams");
+                }
+                if ((selection.totalSelectedPrice + selectedTeam.price) > tournament.maxPrice) {
+                    showError("You don’t have enough points")
+                }
             }
         }
         if (selection.version == newState.version) {
