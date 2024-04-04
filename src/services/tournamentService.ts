@@ -16,7 +16,8 @@ export async function fetchTournamentBySlug(slug: string) {
 
 export async function fetchTeamsForTournament(tournamentId: number) {
     return prisma.team.findMany({
-        where: {tournamentId}
+        where: {tournamentId},
+        orderBy: [ { price: 'desc' }, { name: 'asc' } ]
     });
 }
 
