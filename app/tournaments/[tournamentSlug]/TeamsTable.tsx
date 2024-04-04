@@ -14,7 +14,7 @@ export default function TeamsTable({ teams, selectedTeamIds, handleCheckboxChang
             <Table variant='simple'>
                 <Tbody>
                     {teams.map((team) => (
-                        <Tr key={team.id}>
+                        <Tr key={team.id} _hover={{background: "#ebf8ff"}}>
                             <Td>
                                 <Checkbox
                                     isChecked={selectedTeamIds.some(id => id === team.id)}
