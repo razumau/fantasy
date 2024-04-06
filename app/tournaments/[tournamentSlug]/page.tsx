@@ -4,12 +4,7 @@ import TournamentTeamsPage from './teams'
 export default async function Page({ params }: { params: { tournamentSlug: string } }) {
     const tournament = await fetchTournamentBySlug(params.tournamentSlug);
     if (!tournament) {
-        return {
-            redirect: {
-                destination: '/404',
-                permanent: false,
-            },
-        };
+        throw new Error('There is no tournament with this ID');
     }
 
     const teams = await fetchTeamsForTournament(tournament.id);
