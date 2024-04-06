@@ -16,7 +16,7 @@ export default function SelectedTeams({ teams, maxPrice }: SelectedTeams) {
     return (
         <Card>
             <CardBody>
-                <Text pb={4}>Spent {pricesSum} points</Text>
+                <Text pb={4}>Spent {pricesSum} out of {maxPrice} points</Text>
                 <Progress value={pricesSum * 100 / maxPrice} />
                 <List pt={4} spacing={3}>{teamsList}</List>
             </CardBody>
