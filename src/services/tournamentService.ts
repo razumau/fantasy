@@ -3,15 +3,20 @@ import {auth} from "@clerk/nextjs";
 import {fetchOrCreateUser} from "@/src/services/userService";
 
 export async function fetchTournamentBySlug(slug: string) {
-    return prisma.tournament.findUnique({
+    const tournament = await prisma.tournament.findUnique({
         where: { slug },
         select: {
             title: true,
             id: true,
             maxPrice: true,
-            maxTeams: true
+            maxTeams: true,
+            deadline: true,
         }
     });
+
+    if (!tournament) { return null; }
+
+    return {...tournament, isOpen: (new Date() < tournament.deadline) };
 }
 
 export async function fetchTeamsForTournament(tournamentId: number) {

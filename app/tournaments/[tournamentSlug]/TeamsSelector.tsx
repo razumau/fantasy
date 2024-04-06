@@ -3,7 +3,8 @@ import TeamsTable from "./TeamsTable";
 import SelectedTeams from "./SelectedTeams";
 import {savePicks} from "@/app/actions";
 import {Tournament, Team, Picks} from "./types";
-import { Box, Grid, useToast } from '@chakra-ui/react';
+import {Box, Card, CardBody, Divider, Grid, List, Progress, Text, useToast} from '@chakra-ui/react';
+import TournamentInfo from "@/app/tournaments/[tournamentSlug]/TournamentInfo";
 
 interface SelectionState {
     selectedTeams: Team[];
@@ -87,13 +88,30 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                 gap={4}
             >
                 <Box display={{ base: "block", md: "block" }} order={{ base: 1, md: 3 }}>
-                    <SelectedTeams teams={selection.selectedTeams} maxPrice={tournament.maxPrice}/>
+
+                    <Card>
+                        <CardBody>
+                            <SelectedTeams
+                                teams={selection.selectedTeams}
+                                maxPrice={tournament.maxPrice}
+                            />
+                        </CardBody>
+                        <Divider></Divider>
+                        <CardBody>
+                            <TournamentInfo
+                                maxTeams={tournament.maxTeams}
+                                deadline={tournament.deadline}
+                                isOpen={tournament.isOpen}
+                            />
+                        </CardBody>
+                    </Card>
                 </Box>
 
                 <Box order={{ base: 2, md: 2 }}>
                     <TeamsTable teams={teams}
                                 selectedTeamIds={selectedTeamIds}
                                 handleCheckboxChange={handleCheckboxChange}
+                                isOpen={tournament.isOpen}
                     />
                 </Box>
 

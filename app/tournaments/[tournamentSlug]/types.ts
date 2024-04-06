@@ -1,8 +1,10 @@
 export interface Tournament {
-    id: number;
-    title: string;
-    maxTeams: number;
-    maxPrice: number;
+    id: number,
+    title: string,
+    maxTeams: number,
+    maxPrice: number,
+    deadline: Date,
+    isOpen: boolean
 }
 
 export interface Team {

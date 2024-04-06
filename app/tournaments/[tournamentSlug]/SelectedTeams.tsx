@@ -1,5 +1,5 @@
 import { Team } from './types'
-import { Card, CardBody, Text, List, ListItem, Progress } from '@chakra-ui/react'
+import {Card, CardBody, Text, List, ListItem, Progress, Divider} from '@chakra-ui/react'
 
 interface SelectedTeams {
     teams: Team[];
@@ -14,12 +14,12 @@ export default function SelectedTeams({ teams, maxPrice }: SelectedTeams) {
     )
     const pricesSum = teams.reduce((sum, team) => sum + team.price, 0);
     return (
-        <Card>
-            <CardBody>
-                <Text pb={4}>Spent {pricesSum} out of {maxPrice} points</Text>
-                <Progress value={pricesSum * 100 / maxPrice} />
-                <List pt={4} spacing={3}>{teamsList}</List>
-            </CardBody>
-        </Card>
-)
+        <>
+            <Text pb={4}>Spent {pricesSum} out of {maxPrice} points</Text>
+            <Progress value={pricesSum * 100 / maxPrice}/>
+            <List pt={4} spacing={3}>
+                {teamsList}
+            </List>
+        </>
+    );
 }
