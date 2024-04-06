@@ -34,7 +34,11 @@ export async function fetchPicks(tournamentId: number) {
     });
 
     if (!picks) {
-        return [];
+        return {
+            teams: [],
+            version: 0,
+            totalSelectedPrice: 0
+        };
     }
 
     const teamIds = JSON.parse(picks.teamIds);
