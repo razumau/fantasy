@@ -18,8 +18,7 @@ async function main() {
         create: {
             slug: "pl-2024",
             title: "Чемпионат Польши 2024",
-            start: new Date("2024-04-13T12:00:00.000Z"),
-            finish: new Date("2024-04-14T16:00:00.000Z"),
+            deadline: new Date("2024-04-13T12:00:00.000Z"),
             maxPrice: 150,
             maxTeams: 5,
         }
@@ -31,8 +30,7 @@ async function main() {
         create: {
             slug: "test-1",
             title: "Test tournament 2124",
-            start: new Date("2124-01-01T10:00:00.000Z"),
-            finish: new Date("2124-01-01T11:00:00.000Z"),
+            deadline: new Date("2124-01-01T10:00:00.000Z"),
             maxPrice: 100,
             maxTeams: 3,
         }
@@ -44,8 +42,7 @@ async function main() {
         create: {
             slug: "test-2",
             title: "Test tournament 2023",
-            start: new Date("2023-01-01T10:00:00.000Z"),
-            finish: new Date("2023-01-01T11:00:00.000Z"),
+            deadline: new Date("2023-01-01T10:00:00.000Z"),
             maxPrice: 100,
             maxTeams: 3,
         }

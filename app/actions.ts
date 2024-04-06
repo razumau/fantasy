@@ -11,7 +11,7 @@ type Team = {
 
 type Tournament = {
     id: number;
-    start: object;
+    deadline: object;
     maxTeams: number;
     maxPrice: number;
     teams: Team[];
@@ -72,7 +72,7 @@ async function fetchTournament(tournamentId: number) {
         where: {id: tournamentId},
         select: {
             id: true,
-            start: true,
+            deadline: true,
             maxTeams: true,
             maxPrice: true,
             teams: {
@@ -99,7 +99,7 @@ function arePicksInvalid(teamIds: number[], tournament: Tournament): boolean {
 }
 
 function isTournamentClosed(tournament: Tournament): boolean {
-    return new Date() >= tournament.start;
+    return new Date() >= tournament.deadline;
 }
 
 
