@@ -58,3 +58,46 @@ export async function fetchPicks(tournamentId: number) {
         totalSelectedPrice
     }
 }
+
+export async function fetchPopularTeamsForTournament(tournamentId: number) {
+    const picks = await prisma.pick.findMany({
+        where: {
+            tournamentId,
+            NOT: {
+                teamIds: "[]",
+            }
+        },
+        select: {teamIds: true}
+    });
+    const teams = await prisma.team.findMany({
+        where: { tournamentId },
+        select: { name: true, price: true, id: true }
+    });
+
+    const counter = buildPopularityCounter(picks);
+    const teamsByPopularity = teams.map(team => {
+        const count = counter.get(team.id) || 0;
+        const percentage = picks.length ? count * 100 / picks.length : 0;
+        return {
+            ...team,
+            count,
+            percentage,
+        }
+    }).sort((teamA, teamB) => teamB.percentage - teamA.percentage);
+
+    return { teamsByPopularity, usersWithPickCount: picks.length }
+}
+
+function buildPopularityCounter(picks: { teamIds: string }[]): Map<number, number> {
+    const counter: Map<number, number> = new Map();
+
+    picks.map(pick => JSON.parse(pick.teamIds))
+        .flat()
+        .reduce((counter, teamId) => {
+            const newCount = counter.has(teamId)? counter.get(teamId) + 1 : 1;
+            counter.set(teamId, newCount);
+            return counter;
+        }, counter);
+
+    return counter;
+}
