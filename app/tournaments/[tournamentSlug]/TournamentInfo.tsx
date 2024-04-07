@@ -14,10 +14,8 @@ export default function TournamentInfo({ maxTeams, deadline, isOpen }: Tournamen
     if (isOpen) {
         return (
             <>
-                <Text>Select up to {maxTeams} teams.</Text>
-                <Text>Your result is the sum of their points.</Text>
-                <Text>You can change your picks until {formattedDate}.</Text>
-                <Text>That means you have {timeRemaining} left.</Text>
+                <Text pt={2}>Select up to {maxTeams} teams. Your result is the sum of their points.</Text>
+                <Text pt={2}>You can change your picks until {formattedDate} (you have {timeRemaining} left).</Text>
             </>
         )
     } else {
