@@ -5,7 +5,7 @@ import { authMiddleware } from "@clerk/nextjs";
 
 export default authMiddleware({
     // Allow signed out users to access the specified routes:
-    publicRoutes: ['/', '/tournaments/:tournamentSlug/popular'],
+    publicRoutes: ['/', '/tournaments/:tournamentSlug/popular', '/tournaments/:tournamentSlug/results'],
     // Prevent the specified routes from accessing
     // authentication information:
     // ignoredRoutes: ['/no-auth-in-this-route'],
