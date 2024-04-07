@@ -94,6 +94,7 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                             <SelectedTeams
                                 teams={selection.selectedTeams}
                                 maxPrice={tournament.maxPrice}
+                                isOpen={tournament.isOpen}
                             />
                         </CardBody>
                         <Divider></Divider>

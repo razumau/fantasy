@@ -1,12 +1,17 @@
 import { Team } from './types'
-import {Card, CardBody, Text, List, ListItem, Progress, Divider} from '@chakra-ui/react'
+import {Text, List, ListItem, Progress} from '@chakra-ui/react'
 
 interface SelectedTeams {
     teams: Team[];
     maxPrice: number;
+    isOpen: boolean;
 }
 
-export default function SelectedTeams({ teams, maxPrice }: SelectedTeams) {
+export default function SelectedTeams({ teams, maxPrice, isOpen }: SelectedTeams) {
+    if (!isOpen && !teams.length) {
+        return (<></>);
+    }
+
     const teamsList = teams.map(team =>
         <ListItem key={team.id}>
             <Text>{team.name} ({team.price})</Text>
