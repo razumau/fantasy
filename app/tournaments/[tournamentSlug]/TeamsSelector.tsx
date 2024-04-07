@@ -91,9 +91,9 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
 
                     <Card>
                         <CardBody>
-                            <SelectedTeams
-                                teams={selection.selectedTeams}
-                                maxPrice={tournament.maxPrice}
+                            <TournamentInfo
+                                maxTeams={tournament.maxTeams}
+                                deadline={tournament.deadline}
                                 isOpen={tournament.isOpen}
                             />
                         </CardBody>
@@ -101,12 +101,14 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                             <Divider colorScheme={'blue'}></Divider>
                         </Box>
                         <CardBody>
-                            <TournamentInfo
-                                maxTeams={tournament.maxTeams}
-                                deadline={tournament.deadline}
+                            <SelectedTeams
+                                teams={selection.selectedTeams}
+                                maxPrice={tournament.maxPrice}
                                 isOpen={tournament.isOpen}
                             />
                         </CardBody>
+
+
                     </Card>
                 </Box>
 
