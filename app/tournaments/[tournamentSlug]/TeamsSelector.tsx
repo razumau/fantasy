@@ -97,7 +97,9 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                                 isOpen={tournament.isOpen}
                             />
                         </CardBody>
-                        <Divider></Divider>
+                        <Box position='relative' px='5'>
+                            <Divider colorScheme={'blue'}></Divider>
+                        </Box>
                         <CardBody>
                             <TournamentInfo
                                 maxTeams={tournament.maxTeams}
