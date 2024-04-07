@@ -20,7 +20,7 @@ export default function SelectedTeams({ teams, maxPrice, isOpen }: SelectedTeams
     const pricesSum = teams.reduce((sum, team) => sum + team.price, 0);
     return (
         <>
-            <Text pb={4}>Spent {pricesSum} out of {maxPrice} points</Text>
+            <Text pb={4}>Spent {pricesSum} points, {maxPrice - pricesSum} remaining.</Text>
             <Progress value={pricesSum * 100 / maxPrice}/>
             <List pt={4} spacing={3}>
                 {teamsList}
