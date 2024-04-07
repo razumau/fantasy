@@ -2,8 +2,7 @@
 
 import TeamsSelector from "./TeamsSelector";
 import {Tournament, Team, Picks} from "./types";
-import { UserButton } from "@clerk/nextjs";
-import {Box, Flex, Heading} from "@chakra-ui/react";
+import {Heading} from "@chakra-ui/react";
 
 interface TournamentTeamsPageProps {
     tournament: Tournament;
@@ -12,13 +11,8 @@ interface TournamentTeamsPageProps {
 }
 
 export default function TournamentTeamsPage({ tournament, teams, picks }: TournamentTeamsPageProps) {
-    return (
-        <Box minH="100vh">
-            <Flex justifyContent="flex-end" p={4}>
-                <UserButton/>
-            </Flex>
-            <Heading textAlign={'center'} mx={2}>{tournament.title}</Heading>
-            <TeamsSelector teams={teams} tournament={tournament} picks={picks}/>
-        </Box>
-    );
+    return <>
+        <Heading textAlign={'center'} mx={2}>{tournament.title}</Heading>
+        <TeamsSelector teams={teams} tournament={tournament} picks={picks}/>
+    </>;
 };
