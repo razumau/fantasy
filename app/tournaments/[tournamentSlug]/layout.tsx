@@ -1,5 +1,5 @@
 import React from "react";
-import {Box, Flex, Text, Link, Divider} from "@chakra-ui/react";
+import {Box, Flex, Text, Link} from "@chakra-ui/react";
 import {UserButton} from "@clerk/nextjs";
 
 export default function TournamentLayout({children}: {
