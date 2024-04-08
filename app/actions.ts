@@ -23,7 +23,7 @@ type PicksInput = {
     version: number;
 }
 
-export async function savePicks({ teamIds, tournamentId }: PicksInput) {
+export async function savePicks({ teamIds, tournamentId, version }: PicksInput) {
     const clerkUserId = auth().userId;
     if (!clerkUserId) {
         throw new Error('User not authenticated');
@@ -46,7 +46,8 @@ export async function savePicks({ teamIds, tournamentId }: PicksInput) {
 
     await prisma.pick.upsert({
         where: {
-            userId_tournamentId: { userId, tournamentId }
+            userId_tournamentId: { userId, tournamentId },
+            version: { lt: version }
         },
         create: {
             userId,
@@ -57,7 +58,7 @@ export async function savePicks({ teamIds, tournamentId }: PicksInput) {
         update: {
             userId,
             tournamentId,
-            version: { increment: 1 },
+            version,
             teamIds: JSON.stringify(teamIds)
         }
     })
