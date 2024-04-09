@@ -15,7 +15,7 @@ export default function TournamentLayout({children}: {
             </Box>
             <Flex as="footer" width="full" align="center" justifyContent="center" p={4}>
                 <Text fontSize='sm' mr={2}>Made by Jury Razumau.</Text>
-                <Link fontSize='sm' href="https://www.buymeacoffee.com/yourusername" isExternal>
+                <Link fontSize='sm' href="https://www.buymeacoffee.com/juryrazumau" isExternal>
                     You can buy me a coffee.
                 </Link>
             </Flex>
