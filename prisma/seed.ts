@@ -80,11 +80,52 @@ async function createTeams(tournamentId: number, withPoints: boolean = false) {
     }
 }
 
+async function createPL2024Teams(tournamentId: number) {
+    const teams: [string, number][] = [
+        ["Гимназия имени Кейси Легумины", 60],
+        ["Пахне чабор!", 50],
+        ["Polish Space Marines", 50],
+        ["4:20", 50],
+        ["1067", 50],
+        ["Какая собака?", 50],
+        ["Szopy", 45],
+        ["Гдыгда", 45],
+        ["Бесславные краснолюдки", 40],
+        ["Ежу понятно", 40],
+        ["Самая большая лягушка", 35],
+        ["WarSowiak", 35],
+        ["Чай Кава Макава", 35],
+        ["Гэта элементарныя рэчы", 35],
+        ["Przepraszam, jestem jabłkiem", 35],
+        ["С нами Б-г", 30],
+        ["Zespół Kubusia Puchatka", 30],
+        ["Есть желающие", 30],
+        ["Хор Овец", 30],
+        ["Хождение под мухой", 25],
+        ["Пингвины штурмуют эскалатор", 25],
+        ["Большие люди", 25],
+        ["Приемлемо", 25],
+        ["69/300", 20],
+        ["Чуть-чуть не докрутили", 20],
+        ["Твикс Пикс", 20],
+        ["Нас семеро, вместе с Джимом", 15],
+        ["Душный ЗОЖ", 15]
+    ];
+    for (const [name, price] of teams) {
+        const team = await prisma.team.findFirst({ where: { tournamentId, name, price} });
+
+        if (!team) {
+            await prisma.team.create({ data: { tournamentId, name, price } })
+        }
+    }
+}
+
 async function main() {
     await createUser();
-    const [, testOne, testTwo] = await createTournaments();
+    const [pl, testOne, testTwo] = await createTournaments();
     await createTeams(testOne.id, false);
     await createTeams(testTwo.id, true);
+    await createPL2024Teams(pl.id);
 }
 
 main()
