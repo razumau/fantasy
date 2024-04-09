@@ -3,7 +3,7 @@ import TeamsTable from "./TeamsTable";
 import SelectedTeams from "./SelectedTeams";
 import {savePicks} from "@/app/actions";
 import {Tournament, Team, Picks} from "./types";
-import {Box, Card, CardBody, Divider, Grid, Link, List, Progress, Text, useToast} from '@chakra-ui/react';
+import {Box, Card, CardBody, Divider, Grid, Link, useToast} from '@chakra-ui/react';
 import TournamentInfo from "@/app/tournaments/[tournamentSlug]/TournamentInfo";
 import NextLink from "next/link";
 
