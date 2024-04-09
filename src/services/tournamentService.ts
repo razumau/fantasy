@@ -16,7 +16,7 @@ export async function fetchTournamentBySlug(slug: string) {
 
     if (!tournament) { return null; }
 
-    return {...tournament, isOpen: (new Date() < tournament.deadline) };
+    return {...tournament, isOpen: (new Date() < tournament.deadline), slug };
 }
 
 export async function fetchTeamsForTournament(tournamentId: number) {

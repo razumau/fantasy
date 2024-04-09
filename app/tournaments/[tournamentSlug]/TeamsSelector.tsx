@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import TeamsTable from "./TeamsTable";
 import SelectedTeams from "./SelectedTeams";
 import {savePicks} from "@/app/actions";
 import {Tournament, Team, Picks} from "./types";
-import {Box, Card, CardBody, Divider, Grid, List, Progress, Text, useToast} from '@chakra-ui/react';
+import {Box, Card, CardBody, Divider, Grid, Link, List, Progress, Text, useToast} from '@chakra-ui/react';
 import TournamentInfo from "@/app/tournaments/[tournamentSlug]/TournamentInfo";
+import NextLink from "next/link";
 
 interface SelectionState {
     selectedTeams: Team[];
@@ -107,8 +108,11 @@ export default function TeamsSelector({ teams, tournament, picks }: TeamsSelecto
                                 isOpen={tournament.isOpen}
                             />
                         </CardBody>
-
-
+                        <Box position='relative' px='5'>
+                            <Divider colorScheme={'blue'}></Divider>
+                        </Box>
+                        <Link pl='5' pt='3' as={NextLink} href={`/tournaments/${tournament.slug}/results`}>See picks by other players.</Link>
+                        <Link pl='5' py='3' as={NextLink} href={`/tournaments/${tournament.slug}/popular`}>What are the most popular teams?</Link>
                     </Card>
                 </Box>
 

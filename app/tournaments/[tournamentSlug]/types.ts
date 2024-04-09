@@ -4,7 +4,8 @@ export interface Tournament {
     maxTeams: number,
     maxPrice: number,
     deadline: Date,
-    isOpen: boolean
+    isOpen: boolean,
+    slug: string,
 }
 
 export interface Team {
