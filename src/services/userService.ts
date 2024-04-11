@@ -3,19 +3,24 @@ import {currentUser} from "@clerk/nextjs";
 
 export async function fetchOrCreateUser() {
     const clerkUser = await fetchClerkUser();
-    const name = clerkUser.username || `${clerkUser.firstName} ${clerkUser.lastName}`;
     const user = await prisma.user.findUnique({
         where: { clerkId: clerkUser.id },
         select: { id: true, name: true }
     });
 
-    if (user) {
-        if (user.name !== name) {
-            await updateUser(clerkUser.id, name);
-        }
-        return user.id;
+    const name = clerkUser.username
+        || `${clerkUser.firstName ?? ''} ${clerkUser.lastName ?? ''}`.trim()
+        || clerkUser.emailAddresses[0].emailAddress;
+
+    if (!user) {
+        return await createUser(clerkUser.id, name);
     }
-    return await createUser(clerkUser.id, name);
+
+    if (user.name !== name) {
+        await updateUser(clerkUser.id, name);
+    }
+
+    return user.id;
 }
 
 async function createUser(clerkId: string, name: string) {
