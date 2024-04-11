@@ -1,29 +1,43 @@
 import prisma from '@/lib/prisma'
-import {auth, currentUser} from "@clerk/nextjs";
+import {currentUser} from "@clerk/nextjs";
 
-export async function fetchOrCreateUser(clerkUserId: string) {
+export async function fetchOrCreateUser() {
+    const clerkUser = await fetchClerkUser();
+    const name = clerkUser.username || `${clerkUser.firstName} ${clerkUser.lastName}`;
     const user = await prisma.user.findUnique({
-        where: { clerkId: clerkUserId },
-        select: { id: true }
+        where: { clerkId: clerkUser.id },
+        select: { id: true, name: true }
     });
 
     if (user) {
+        if (user.name !== name) {
+            await updateUser(clerkUser.id, name);
+        }
         return user.id;
     }
-    return await createUser();
+    return await createUser(clerkUser.id, name);
 }
 
-async function createUser() {
+async function createUser(clerkId: string, name: string) {
+    const newUser = await prisma.user.create({
+        data: { clerkId, name },
+    });
+    return newUser.id;
+}
+
+async function fetchClerkUser() {
     const clerkUser = await currentUser();
     if (!clerkUser) {
         throw new Error('User not authenticated');
     }
-    const name = clerkUser.username || `${clerkUser.firstName} ${clerkUser.lastName}`;
-    const newUser = await prisma.user.create({
-        data: {
-            clerkId: clerkUser.id,
-            name: name
-        },
+    return clerkUser;
+}
+
+async function updateUser(clerkId: string, name: string) {
+    const user = await prisma.user.update({
+        where: { clerkId },
+        data: { name },
     });
-    return newUser.id;
+
+    return user.id;
 }

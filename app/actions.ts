@@ -1,6 +1,5 @@
 'use server'
 
-import { auth } from "@clerk/nextjs";
 import prisma from '@/lib/prisma';
 import { fetchOrCreateUser } from '@/src/services/userService'
 
@@ -24,12 +23,7 @@ type PicksInput = {
 }
 
 export async function savePicks({ teamIds, tournamentId, version }: PicksInput) {
-    const clerkUserId = auth().userId;
-    if (!clerkUserId) {
-        throw new Error('User not authenticated');
-    }
-
-    const userId = await fetchOrCreateUser(clerkUserId);
+    const userId = await fetchOrCreateUser();
     const tournament = await fetchTournament(tournamentId);
 
     if (!tournament) {
