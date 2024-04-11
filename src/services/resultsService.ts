@@ -33,7 +33,12 @@ export async function fetchTournamentResults(tournamentId: number) {
 
 async function fetchPicks(tournamentId: number): Promise<Pick[]> {
     const picks = await prisma.pick.findMany({
-        where: {tournamentId},
+        where: {
+            tournamentId,
+            NOT: {
+                teamIds: '[]'
+            }
+        },
         select: {
             teamIds: true,
             user: { select: { name: true, id: true } }
