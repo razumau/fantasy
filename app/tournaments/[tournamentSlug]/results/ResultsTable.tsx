@@ -29,7 +29,7 @@ export default function ResultsTable({ results, tournamentSlug }: ResultsTablePr
         <TableContainer>
             <Table variant='simple'>
                 <TableCaption placement="top">
-                    <Link as={NextLink} href={`/tournaments/${tournamentSlug}`}>Go to the selections page.</Link>
+                    <Link as={NextLink} href={`/tournaments/${tournamentSlug}`}>Go to the selections page</Link>
                 </TableCaption>
                 <Thead><Tr>
                     <Th>#</Th>
