@@ -71,13 +71,13 @@ export async function fetchPopularTeamsForTournament(tournamentId: number) {
     const counter = buildPopularityCounter(picks);
     const teamsByPopularity = teams.map(team => {
         const count = counter.get(team.id) || 0;
-        const percentage = picks.length ? count * 100 / picks.length : 0;
+        const percentage = (picks.length ? count * 100 / picks.length : 0).toFixed(1);
         return {
             ...team,
             count,
             percentage,
         }
-    }).sort((teamA, teamB) => teamB.percentage - teamA.percentage);
+    }).sort((teamA, teamB) => teamB.count - teamA.count);
 
     return { teamsByPopularity, usersWithPickCount: picks.length }
 }

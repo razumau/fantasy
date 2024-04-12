@@ -1,7 +1,7 @@
 export type TeamPopularity = {
     id: number;
     name: string;
-    percentage: number;
+    percentage: string;
     count: number;
 }
 
