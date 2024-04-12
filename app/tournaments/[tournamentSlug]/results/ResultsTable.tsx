@@ -9,13 +9,14 @@ type ResultsTableProps = {
 }
 
 export default function ResultsTable({ results, tournamentSlug }: ResultsTableProps) {
-    const buildRow = (result: Result) => {
+    const buildRow = (result: Result, index: number) => {
         const teamsCell = result.teams.map(team => {
             const teamLine = `${team.name} (${team.price}) — ${team.points}`
             return <ListItem key={team.id}>{teamLine}</ListItem>;
         });
 
         return <Tr key={result.userId} _hover={{background: "#ebf8ff"}}>
+            <Td>{index + 1}</Td>
             <Td>{result.username}</Td>
             <Td isNumeric>{result.points}</Td>
             <Td>
@@ -31,12 +32,13 @@ export default function ResultsTable({ results, tournamentSlug }: ResultsTablePr
                     <Link as={NextLink} href={`/tournaments/${tournamentSlug}`}>Go to the selections page.</Link>
                 </TableCaption>
                 <Thead><Tr>
+                    <Th>#</Th>
                     <Th>Player</Th>
                     <Th isNumeric>Points</Th>
                     <Th>Picked teams</Th>
                 </Tr></Thead>
                 <Tbody>
-                    {results.map((result) => buildRow(result))}
+                    {results.map((result, index) => buildRow(result, index))}
                 </Tbody>
             </Table>
         </TableContainer>
