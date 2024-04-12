@@ -22,3 +22,7 @@ primary_region = 'waw'
 [mounts]
   source = "litefs"
   destination = "/var/lib/litefs"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
