@@ -7,7 +7,8 @@ export default function PrivacyPolicy() {
         <Container maxW='4xl' centerContent>
             <Box maxW='2xl'>
                 <Heading as='h2' size='lg'>These tournaments are active:</Heading>
-                <Link pt='8' as={NextLink} href={`/tournaments/pl-2024`}>Чемпионат Польши 2024</Link>
+                <Heading as='h2' size='lg'>See results for completed tournaments:</Heading>
+                <Link pt='8' as={NextLink} href={`/tournaments/pl-2024/results`}>Чемпионат Польши 2024</Link>
             </Box>
         </Container>
     );
