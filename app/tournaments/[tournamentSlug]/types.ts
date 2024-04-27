@@ -12,6 +12,7 @@ export interface Team {
     id: number;
     name: string;
     price: number;
+    points: number;
 }
 
 export interface Picks {

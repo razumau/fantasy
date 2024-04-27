@@ -23,6 +23,18 @@ export async function fetchOrCreateUser() {
     return user.id;
 }
 
+export async function fetchAdminStatus(): Promise<boolean> {
+    const clerkUser = await fetchClerkUser();
+    const user = await prisma.user.findUnique({
+        where: { clerkId: clerkUser.id },
+        select: { isAdmin: true }
+    });
+    if (!user) {
+        return false;
+    }
+    return user.isAdmin;
+}
+
 async function createUser(clerkId: string, name: string) {
     const newUser = await prisma.user.create({
         data: { clerkId, name },

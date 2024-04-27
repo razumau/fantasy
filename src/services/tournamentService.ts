@@ -18,6 +18,20 @@ export async function fetchTournamentBySlug(slug: string) {
     return {...tournament, isOpen: (new Date() < tournament.deadline), slug };
 }
 
+export async function fetchOrCreateTournament(slug: string) {
+    return prisma.tournament.upsert({
+        where: {slug},
+        update: {},
+        create: {
+            slug,
+            title: "",
+            deadline: new Date("2100-01-01T00:00:00.000Z"),
+            maxPrice: 200,
+            maxTeams: 5,
+        }
+    })
+}
+
 export async function fetchTeamsForTournament(tournamentId: number) {
     return prisma.team.findMany({
         where: {tournamentId},

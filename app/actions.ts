@@ -97,4 +97,70 @@ function isTournamentClosed(tournament: Tournament): boolean {
     return new Date() >= tournament.deadline;
 }
 
+type TournamentDetails = Omit<Tournament, 'teams'> & {
+    title: string;
+}
+
+type ParsedTeam = {
+    name: string;
+    price: number;
+    points: number;
+}
+
+
+export async function updateTournament(tournament: TournamentDetails, teamsStr: string) {
+    await prisma.tournament.update({
+        where: {
+            id: tournament.id,
+        },
+        data: {
+            title: tournament.title,
+            deadline: tournament.deadline,
+            maxTeams: tournament.maxTeams,
+            maxPrice: tournament.maxPrice,
+        }
+    })
+    const teams = parseTeams(teamsStr);
+    for (const team of teams) {
+        const existingTeam = await prisma.team.findFirst({
+            where: {
+                tournamentId: tournament.id,
+                name: team.name
+            }
+        });
+        if (existingTeam) {
+            await prisma.team.update({
+                where: {id: existingTeam.id},
+                data: {
+                    price: team.price,
+                    points: team.points,
+                }
+            })
+        } else {
+            await prisma.team.create({
+                data: {
+                    tournamentId: tournament.id,
+                    name: team.name,
+                    price: team.price,
+                    points: team.points,
+                }
+            })
+        }
+    }
+}
+
+function parseTeams(teamsStr: string): ParsedTeam[] {
+    const lines = teamsStr.trim().split("\n");
+    return lines.map((line: string) => {
+        const parts = line.trim().split(" ");
+        if (parts.length < 3) {
+            throw new Error("Invalid line format: " + line);
+        }
+
+        const price = parseInt(parts[parts.length - 2]);
+        const points = parseInt(parts[parts.length - 1]);
+        const name = parts.slice(0, -2).join(" ");
+        return { name, price, points }
+    });
+}
 
