@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import {Result} from "@/app/tournaments/[tournamentSlug]/results/types";
+import {Result, IdealPick} from "@/app/tournaments/[tournamentSlug]/results/types";
 type TeamsMap = Map<number, {name: string, points: number, price: number, id: number}>;
 type Pick = {
     teamIds: number[];
@@ -83,4 +83,82 @@ function filterTeamsForPick(teamIds: number[], teamsMap: TeamsMap): Team[] {
         }
         return team;
     }).sort((teamA, teamB) => (teamB.points * 1000 + teamB.price) - (teamA.points * 1000 + teamA.price));
+}
+
+export async function fetchIdealPick(tournamentId: number): Promise<IdealPick> {
+    const tournament = await prisma.tournament.findUnique({
+        where: { id: tournamentId },
+        select: { maxTeams: true, maxPrice: true, deadline: true }
+    });
+
+    if (!tournament || tournament.deadline > new Date()) {
+        return { teams: [], points: 0 };
+    }
+
+    const teamsMap = await fetchTeamsAsMap(tournamentId);
+
+    const existingPick = await prisma.idealPick.findFirst({
+        where: { tournamentId },
+        select: { teamIds: true, points: true }
+    });
+
+    if (!existingPick) {
+        const pick = calculateIdealPick(teamsMap, tournament.maxTeams, tournament.maxPrice);
+        await saveIdealPick(tournamentId, pick);
+        return pick;
+    }
+
+    return {
+        teams: filterTeamsForPick(JSON.parse(existingPick.teamIds), teamsMap),
+        points: existingPick.points
+    }
+}
+
+function calculateIdealPick(teamsMap: TeamsMap, maxTeams: number, maxPrice: number): IdealPick {
+    const teams = Array.from(teamsMap.values());
+    const allCombinations = generateCombinations(teams, maxTeams);
+    let maxPoints = 0;
+    let bestCombination: Team[] = [];
+
+    for (const combination of allCombinations) {
+        const totalPrice = combination.reduce((sum, team) => sum + team.price, 0);
+        if (totalPrice <= maxPrice) {
+            const totalPoints = combination.reduce((sum, team) => sum + team.points, 0);
+            if (totalPoints > maxPoints) {
+                maxPoints = totalPoints;
+                bestCombination = combination;
+            }
+        }
+    }
+
+    return {
+        teams: bestCombination,
+        points: maxPoints
+    };
+}
+
+function generateCombinations(teams: Team[], maxTeams: number): Team[][] {
+    if (maxTeams === 0) {
+        return [[]];
+    }
+    let combinations: Team[][] = [];
+    for (let i = 0; i < teams.length; i++) {
+        const team = teams[i];
+        const remaining = teams.slice(i + 1);
+        const remainingCombinations = generateCombinations(remaining, maxTeams - 1);
+        const teamCombinations = remainingCombinations.map(combination => [team, ...combination]);
+        combinations = [...combinations, ...teamCombinations];
+    }
+
+    return combinations;
+}
+
+async function saveIdealPick(tournamentId: number, pick: IdealPick) {
+    await prisma.idealPick.create({
+        data: {
+            tournamentId,
+            teamIds: JSON.stringify(pick.teams.map(team => team.id)),
+            points: pick.points
+        }
+    });
 }
