@@ -9,7 +9,7 @@ type ResultsTableProps = {
 }
 
 export default function ResultsTable({ results, tournamentSlug }: ResultsTableProps) {
-    const buildRow = (result: Result, index: number) => {
+    const buildRow = (result: Result) => {
         const teamsCell = result.teams.map(team => {
             const teamLine = `${team.name} (${team.price}) — ${team.points}`
             return <ListItem key={team.id}>{teamLine}</ListItem>;
@@ -38,7 +38,7 @@ export default function ResultsTable({ results, tournamentSlug }: ResultsTablePr
                     <Th>Picked teams</Th>
                 </Tr></Thead>
                 <Tbody>
-                    {results.map((result, index) => buildRow(result, index))}
+                    {results.map((result, index) => buildRow(result))}
                 </Tbody>
             </Table>
         </TableContainer>
