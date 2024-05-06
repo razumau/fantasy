@@ -9,6 +9,19 @@ type ResultsTableProps = {
 }
 
 export default function ResultsTable({ results, tournamentSlug }: ResultsTableProps) {
+    const calculateRank = (results: Result[]) => {
+        let rank = 0, prevPoints = -1;
+        return results.map((result, index) => {
+            if (result.points !== prevPoints) {
+                rank = index + 1;
+            }
+            prevPoints = result.points;
+            return {...result, rank};
+        });
+    }
+
+    const rankedResults = calculateRank(results);
+
     const buildRow = (result: Result, index: number) => {
         const teamsCell = result.teams.map(team => {
             const teamLine = `${team.name} (${team.price}) — ${team.points}`
@@ -16,7 +29,7 @@ export default function ResultsTable({ results, tournamentSlug }: ResultsTablePr
         });
 
         return <Tr key={result.userId} _hover={{background: "#ebf8ff"}}>
-            <Td>{index + 1}</Td>
+            <Td>{result.rank}</Td>
             <Td>{result.username}</Td>
             <Td isNumeric>{result.points}</Td>
             <Td>
@@ -38,7 +51,7 @@ export default function ResultsTable({ results, tournamentSlug }: ResultsTablePr
                     <Th>Picked teams</Th>
                 </Tr></Thead>
                 <Tbody>
-                    {results.map((result, index) => buildRow(result, index))}
+                    {rankedResults.map((result, index) => buildRow(result, index))}
                 </Tbody>
             </Table>
         </TableContainer>

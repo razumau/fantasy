@@ -8,6 +8,7 @@ export type Result = {
         points: number;
     }[];
     points: number;
+    rank: number;
 }
 
 export type Tournament = {
