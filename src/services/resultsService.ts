@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import {Result} from "@/app/tournaments/[tournamentSlug]/results/types";
 type TeamsMap = Map<number, {name: string, points: number, price: number, id: number}>;
 type Pick = {
     teamIds: number[];
@@ -17,7 +18,7 @@ export async function fetchTournamentResults(tournamentId: number) {
     const picks = await fetchPicks(tournamentId);
     const teams = await fetchTeamsAsMap(tournamentId);
 
-    return picks
+    const results = picks
         .map(({ username, userId, teamIds }) => {
             const teamsForPick = filterTeamsForPick(teamIds, teams);
             const points = teamsForPick.reduce((sum, team) => sum + team.points, 0);
@@ -29,6 +30,18 @@ export async function fetchTournamentResults(tournamentId: number) {
             }
         })
         .sort((resultA, resultB) => resultB.points - resultA.points);
+    return addRanks(results);
+}
+
+function addRanks(results: Omit<Result, 'rank'>[]): Result[] {
+    let rank = 0, prevPoints = -1;
+    return results.map((result, index) => {
+        if (result.points !== prevPoints) {
+            rank = index + 1;
+        }
+        prevPoints = result.points;
+        return {...result, rank};
+    });
 }
 
 async function fetchPicks(tournamentId: number): Promise<Pick[]> {
