@@ -114,26 +114,38 @@ export async function fetchIdealPick(tournamentId: number): Promise<IdealPick> {
     }
 }
 
-export function calculateIdealPick(teams: Team[], maxTeams: number, maxPrice: number): IdealPick {
-    const allCombinations = generateCombinations(teams, maxTeams);
-    let maxPoints = 0;
-    let bestCombination: Team[] = [];
+export function calculateIdealPick(teams: Team[], maxTeams: number, budget: number): IdealPick {
+    const n = teams.length;
+    let dp: number[][] = Array(maxTeams + 1).fill(null).map(() => Array(budget + 1).fill(0));
+    let selections: number[][][] = Array(maxTeams + 1).fill(null).map(() =>
+        Array(budget + 1).fill(null).map(() => [])
+    );
 
-    for (const combination of allCombinations) {
-        const totalPrice = combination.reduce((sum, team) => sum + team.price, 0);
-        if (totalPrice <= maxPrice) {
-            const totalPoints = combination.reduce((sum, team) => sum + team.points, 0);
-            if (totalPoints > maxPoints) {
-                maxPoints = totalPoints;
-                bestCombination = combination;
+    for (let i = 0; i < n; i++) {
+        for (let k = maxTeams; k > 0; k--) {
+            for (let j = budget; j >= teams[i].price; j--) {
+                const newPoints = dp[k-1][j - teams[i].price] + teams[i].points;
+                if (newPoints > dp[k][j]) {
+                    dp[k][j] = newPoints;
+                    selections[k][j] = [...selections[k-1][j - teams[i].price], i];
+                }
             }
         }
     }
 
-    return {
-        teams: bestCombination,
-        points: maxPoints
-    };
+    let maxPoints = 0;
+    let selectedIndexes: number[] = [];
+    for (let k = 1; k <= maxTeams; k++) {
+        for (let j = 0; j <= budget; j++) {
+            if (dp[k][j] > maxPoints) {
+                maxPoints = dp[k][j];
+                selectedIndexes = selections[k][j];
+            }
+        }
+    }
+
+    const selectedTeams = selectedIndexes.map(index => teams[index]);
+    return { points: maxPoints, teams: selectedTeams };
 }
 
 function generateCombinations(teams: Team[], maxTeams: number): Team[][] {
