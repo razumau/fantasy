@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import {Result, IdealPick} from "@/app/tournaments/[tournamentSlug]/results/types";
-type TeamsMap = Map<number, {name: string, points: number, price: number, id: number}>;
+type TeamsMap = Map<number, Team>;
 type Pick = {
     teamIds: number[];
     username: string;
@@ -103,7 +103,7 @@ export async function fetchIdealPick(tournamentId: number): Promise<IdealPick> {
     });
 
     if (!existingPick) {
-        const pick = calculateIdealPick(teamsMap, tournament.maxTeams, tournament.maxPrice);
+        const pick = calculateIdealPick(Array.from(teamsMap.values()), tournament.maxTeams, tournament.maxPrice);
         await saveIdealPick(tournamentId, pick);
         return pick;
     }
@@ -114,8 +114,7 @@ export async function fetchIdealPick(tournamentId: number): Promise<IdealPick> {
     }
 }
 
-function calculateIdealPick(teamsMap: TeamsMap, maxTeams: number, maxPrice: number): IdealPick {
-    const teams = Array.from(teamsMap.values());
+export function calculateIdealPick(teams: Team[], maxTeams: number, maxPrice: number): IdealPick {
     const allCombinations = generateCombinations(teams, maxTeams);
     let maxPoints = 0;
     let bestCombination: Team[] = [];
