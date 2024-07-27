@@ -2,7 +2,7 @@
 
 # Adjust NODE_VERSION as desired
 ARG NODE_VERSION=19.8.1
-FROM node:${NODE_VERSION}-slim as base
+FROM node:${NODE_VERSION}-slim AS base
 
 LABEL fly_launch_runtime="Next.js/Prisma"
 
@@ -20,7 +20,7 @@ RUN npm install -g pnpm@$PNPM_VERSION
 
 
 # Throw-away build stage to reduce size of final image
-FROM base as build
+FROM base AS build
 
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
@@ -47,23 +47,23 @@ RUN pnpm prune --prod
 # Final stage for app image
 FROM base
 
-COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
-
 # Install packages needed for deployment
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl ca-certificates fuse3 sqlite3 && \
+    apt-get install --no-install-recommends -y openssl ca-certificates fuse3 sqlite3 curl && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+ARG LITESTREAM_VERSION=0.3.13
+RUN curl https://github.com/benbjohnson/litestream/releases/download/v0.3.13/litestream-v${LITESTREAM_VERSION}-linux-amd64.deb -O -L
+RUN dpkg -i litestream-v${LITESTREAM_VERSION}-linux-amd64.deb
 
 # Copy built application
 COPY --from=build /app /app
+COPY --from=build /app/litestream.yml /etc/litestream.yml
 
 # Setup sqlite3 on a separate volume
 RUN mkdir -p /data
 VOLUME /data
 
-RUN npx prisma migrate deploy
-RUN npx prisma db seed
-
-# Start the server by default, this can be overwritten at runtime
+RUN chmod +x scripts/entrypoint.sh
 EXPOSE 3000
-ENTRYPOINT litefs mount
+ENTRYPOINT ["scripts/entrypoint.sh"]

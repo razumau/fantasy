@@ -40,3 +40,4 @@ yarn-error.log*
 
 .idea
 prisma/*.db
+litestream_local.yml
