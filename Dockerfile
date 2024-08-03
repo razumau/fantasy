@@ -15,7 +15,7 @@ ENV NEXT_TELEMETRY_DISABLED="1" \
     DATABASE_URL="file:/data/sqlite.db"
 
 # Install pnpm
-ARG PNPM_VERSION=8.15.5
+ARG PNPM_VERSION=9.6.0
 RUN npm install -g pnpm@$PNPM_VERSION
 
 
