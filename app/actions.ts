@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { fetchOrCreateUser } from '@/src/services/userService'
+import { updateIdealPick } from "@/src/services/resultsService";
 
 type Team = {
     id: number;
@@ -147,6 +148,7 @@ export async function updateTournament(tournament: TournamentDetails, teamsStr: 
             })
         }
     }
+    await updateIdealPick(tournament.id);
 }
 
 function parseTeams(teamsStr: string): ParsedTeam[] {
