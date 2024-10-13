@@ -91,27 +91,58 @@ export async function fetchIdealPick(tournamentId: number): Promise<IdealPick> {
         select: { maxTeams: true, maxPrice: true, deadline: true }
     });
 
+    const emptyPick = { points: 0, teams: [] };
+
     if (!tournament || tournament.deadline > new Date()) {
-        return { teams: [], points: 0 };
+        return emptyPick;
     }
 
-    const teamsMap = await fetchTeamsAsMap(tournamentId);
-
-    const existingPick = await prisma.idealPick.findFirst({
+    const pick = await prisma.idealPick.findFirst({
         where: { tournamentId },
         select: { teamIds: true, points: true }
     });
 
-    if (!existingPick) {
-        const pick = calculateIdealPick(Array.from(teamsMap.values()), tournament.maxTeams, tournament.maxPrice);
-        await saveIdealPick(tournamentId, pick);
-        return pick;
+    if (!pick) {
+        return emptyPick;
     }
 
+    const teamsMap = await fetchTeamsAsMap(tournamentId);
+
     return {
-        teams: filterTeamsForPick(JSON.parse(existingPick.teamIds), teamsMap),
-        points: existingPick.points
+        teams: filterTeamsForPick(JSON.parse(pick.teamIds), teamsMap),
+        points: pick.points
     }
+}
+
+export async function updateIdealPick(tournamentId: number): Promise<void> {
+    const tournament = await prisma.tournament.findUnique({
+        where: { id: tournamentId },
+        select: { maxTeams: true, maxPrice: true, deadline: true }
+    });
+
+    if (!tournament || tournament.deadline > new Date()) {
+        return;
+    }
+
+    const teamsMap = await fetchTeamsAsMap(tournamentId);
+    const pick = calculateIdealPick(Array.from(teamsMap.values()), tournament.maxTeams, tournament.maxPrice);
+    const teamIds = JSON.stringify(pick.teams.map(team => team.id));
+
+    await prisma.idealPick.upsert({
+        where: {
+            tournamentId
+        },
+        create: {
+            tournamentId,
+            teamIds,
+            points: pick.points
+        },
+        update: {
+            tournamentId,
+            teamIds,
+            points: pick.points
+        }
+    });
 }
 
 export function calculateIdealPick(teams: Team[], maxTeams: number, budget: number): IdealPick {
@@ -146,30 +177,4 @@ export function calculateIdealPick(teams: Team[], maxTeams: number, budget: numb
 
     const selectedTeams = selectedIndexes.map(index => teams[index]);
     return { points: maxPoints, teams: selectedTeams };
-}
-
-function generateCombinations(teams: Team[], maxTeams: number): Team[][] {
-    if (maxTeams === 0) {
-        return [[]];
-    }
-    let combinations: Team[][] = [];
-    for (let i = 0; i < teams.length; i++) {
-        const team = teams[i];
-        const remaining = teams.slice(i + 1);
-        const remainingCombinations = generateCombinations(remaining, maxTeams - 1);
-        const teamCombinations = remainingCombinations.map(combination => [team, ...combination]);
-        combinations = [...combinations, ...teamCombinations];
-    }
-
-    return combinations;
-}
-
-async function saveIdealPick(tournamentId: number, pick: IdealPick) {
-    await prisma.idealPick.create({
-        data: {
-            tournamentId,
-            teamIds: JSON.stringify(pick.teams.map(team => team.id)),
-            points: pick.points
-        }
-    });
 }
