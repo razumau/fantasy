@@ -5,7 +5,7 @@ import { Providers } from './providers'
 
 export const metadata = {
   metadataBase: new URL('https://fantasy.razumau.net'),
-  title: 'Fantasy (β)',
+  title: 'Fantasy',
   description:
     'Description',
 }
