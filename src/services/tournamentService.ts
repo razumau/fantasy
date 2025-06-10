@@ -115,6 +115,11 @@ export async function fetchOpenTournaments() {
         where: {
             deadline: {
                 gt: new Date()
+            },
+            title: {
+                not: {
+                    startsWith: 'Test'
+                }
             }
         },
         select: {
@@ -133,6 +138,11 @@ export async function fetchClosedTournaments() {
         where: {
             deadline: {
                 lte: new Date()
+            },
+            title: {
+                not: {
+                    startsWith: 'Test'
+                }
             }
         },
         select: {
