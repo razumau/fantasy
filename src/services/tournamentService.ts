@@ -109,3 +109,39 @@ function buildPopularityCounter(picks: { teamIds: string }[]): Map<number, numbe
 
     return counter;
 }
+
+export async function fetchOpenTournaments() {
+    return prisma.tournament.findMany({
+        where: {
+            deadline: {
+                gt: new Date()
+            }
+        },
+        select: {
+            title: true,
+            slug: true,
+            deadline: true
+        },
+        orderBy: {
+            deadline: 'asc'
+        }
+    });
+}
+
+export async function fetchClosedTournaments() {
+    return prisma.tournament.findMany({
+        where: {
+            deadline: {
+                lte: new Date()
+            }
+        },
+        select: {
+            title: true,
+            slug: true,
+            deadline: true
+        },
+        orderBy: {
+            deadline: 'desc'
+        }
+    });
+}
