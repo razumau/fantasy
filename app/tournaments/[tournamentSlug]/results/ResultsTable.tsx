@@ -1,5 +1,18 @@
 import React from "react";
-import {Table, Thead, Th, Tr, Td, Tbody, TableContainer, TableCaption, Link, List, ListItem} from '@chakra-ui/react'
+import {
+    Table,
+    Thead,
+    Th,
+    Tr,
+    Td,
+    Tbody,
+    TableContainer,
+    TableCaption,
+    Link,
+    List,
+    ListItem,
+    Text
+} from '@chakra-ui/react'
 import {Result} from "@/app/tournaments/[tournamentSlug]/results/types";
 import NextLink from 'next/link'
 
@@ -29,7 +42,9 @@ export default function ResultsTable({ results, tournamentSlug }: ResultsTablePr
         <TableContainer>
             <Table variant='simple'>
                 <TableCaption placement="top">
-                    <Link as={NextLink} href={`/tournaments/${tournamentSlug}`}>Go to the selections page</Link>
+                    <Text mb={1}>{results.length} players</Text>
+                    <Text mb={1}><Link as={NextLink} href={`/tournaments/${tournamentSlug}`}>Go to the selections page</Link></Text>
+                    <Text><Link as={NextLink} href={`/tournaments/${tournamentSlug}/popular`}>What are the most popular teams?</Link></Text>
                 </TableCaption>
                 <Thead><Tr>
                     <Th>#</Th>

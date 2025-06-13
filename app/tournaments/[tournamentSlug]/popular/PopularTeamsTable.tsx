@@ -14,8 +14,9 @@ export default function PopularTeamsTable({ teams, usersWithPickCount, tournamen
         <TableContainer>
             <Table variant='simple'>
                 <TableCaption placement="top">
-                    <Text>Based on picks made by {usersWithPickCount} players.</Text>
-                    <Link as={NextLink} href={`/tournaments/${tournamentSlug}`}>Go to the selections page</Link>
+                    <Text mb={1}>Based on picks made by {usersWithPickCount} players</Text>
+                    <Text mb={1}><Link as={NextLink} href={`/tournaments/${tournamentSlug}`}>Go to the selections page</Link></Text>
+                    <Text><Link as={NextLink} href={`/tournaments/${tournamentSlug}/results`}>Go to the results page</Link></Text>
                 </TableCaption>
                 <Thead><Tr>
                     <Th>Team</Th>
