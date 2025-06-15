@@ -16,12 +16,24 @@ export default function EditTournament({ tournament, teams }: EditTournamentProp
     const [deadline, setDeadline] = useState(format(tournament.deadline, "yyyy-MM-dd'T'HH:mm"));
     const [maxTeams, setMaxTeams] = useState(tournament.maxTeams);
     const [maxPrice, setMaxPrice] = useState(tournament.maxPrice);
+    const [spreadsheetUrl, setSpreadsheetUrl] = useState(tournament.spreadsheetUrl || '');
+    const [teamColumnName, setTeamColumnName] = useState(tournament.teamColumnName || '');
+    const [resultColumnName, setResultColumnName] = useState(tournament.resultColumnName || '');
     const [teamsStr, setTeamsStr] = useState(teams);
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const deadlineDate = parseISO(deadline);
-        await updateTournament({id: tournament.id, title, deadline: deadlineDate, maxTeams, maxPrice}, teamsStr);
+        await updateTournament({
+            id: tournament.id, 
+            title, 
+            deadline: deadlineDate, 
+            maxTeams, 
+            maxPrice,
+            spreadsheetUrl: spreadsheetUrl || null,
+            teamColumnName: teamColumnName || null,
+            resultColumnName: resultColumnName || null
+        }, teamsStr);
     };
 
     return <>
@@ -60,6 +72,30 @@ export default function EditTournament({ tournament, teams }: EditTournamentProp
                             type='datetime-local'
                             value={deadline}
                             onChange={(e) => setDeadline(e.target.value)}
+                        />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel>URL for results spreadsheet</FormLabel>
+                        <Input
+                            placeholder='If this tournament uses a spreadsheet for results'
+                            value={spreadsheetUrl}
+                            onChange={(e) => setSpreadsheetUrl(e.target.value)}
+                        />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel>Name of a column with teams</FormLabel>
+                        <Input
+                            placeholder=''
+                            value={teamColumnName}
+                            onChange={(e) => setTeamColumnName(e.target.value)}
+                        />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel>Name of a column with overall results</FormLabel>
+                        <Input
+                            placeholder='Σ'
+                            value={resultColumnName}
+                            onChange={(e) => setResultColumnName(e.target.value)}
                         />
                     </FormControl>
                     <FormControl>

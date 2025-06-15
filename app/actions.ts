@@ -100,6 +100,9 @@ function isTournamentClosed(tournament: Tournament): boolean {
 
 type TournamentDetails = Omit<Tournament, 'teams'> & {
     title: string;
+    spreadsheetUrl?: string | null;
+    teamColumnName?: string | null;
+    resultColumnName?: string | null;
 }
 
 type ParsedTeam = {
@@ -119,6 +122,9 @@ export async function updateTournament(tournament: TournamentDetails, teamsStr: 
             deadline: tournament.deadline,
             maxTeams: tournament.maxTeams,
             maxPrice: tournament.maxPrice,
+            spreadsheetUrl: tournament.spreadsheetUrl,
+            teamColumnName: tournament.teamColumnName,
+            resultColumnName: tournament.resultColumnName,
         }
     })
     const teams = parseTeams(teamsStr);
