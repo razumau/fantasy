@@ -18,17 +18,20 @@ model User {
 }
 
 model Tournament {
-  id        Int        @id @default(autoincrement())
-  deadline  DateTime
-  title     String
-  teams     Team[]
-  picks     Pick[]
-  slug      String     @unique @default(uuid())
-  maxTeams  Int        @default(5)
-  maxPrice  Int        @default(150)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  IdealPick IdealPick?
+  id                 Int        @id @default(autoincrement())
+  deadline           DateTime
+  title              String
+  teams              Team[]
+  picks              Pick[]
+  slug               String     @unique @default(uuid())
+  maxTeams           Int        @default(5)
+  maxPrice           Int        @default(150)
+  spreadsheetUrl     String?
+  teamColumnName     String?
+  resultColumnName   String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  IdealPick          IdealPick?
 }
 
 model Team {

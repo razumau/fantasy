@@ -6,6 +6,9 @@ export interface Tournament {
     deadline: Date,
     isOpen: boolean,
     slug: string,
+    spreadsheetUrl?: string | null,
+    teamColumnName?: string | null,
+    resultColumnName?: string | null,
 }
 
 export interface Team {

@@ -3,6 +3,7 @@
 import prisma from '@/lib/prisma';
 import { fetchOrCreateUser } from '@/src/services/userService'
 import { updateIdealPick } from "@/src/services/resultsService";
+import * as XLSX from 'xlsx';
 
 type Team = {
     id: number;
@@ -100,6 +101,9 @@ function isTournamentClosed(tournament: Tournament): boolean {
 
 type TournamentDetails = Omit<Tournament, 'teams'> & {
     title: string;
+    spreadsheetUrl?: string | null;
+    teamColumnName?: string | null;
+    resultColumnName?: string | null;
 }
 
 type ParsedTeam = {
@@ -119,6 +123,9 @@ export async function updateTournament(tournament: TournamentDetails, teamsStr: 
             deadline: tournament.deadline,
             maxTeams: tournament.maxTeams,
             maxPrice: tournament.maxPrice,
+            spreadsheetUrl: tournament.spreadsheetUrl,
+            teamColumnName: tournament.teamColumnName,
+            resultColumnName: tournament.resultColumnName,
         }
     })
     const teams = parseTeams(teamsStr);
@@ -166,3 +173,72 @@ function parseTeams(teamsStr: string): ParsedTeam[] {
     });
 }
 
+export async function fetchResults(tournamentId: number) {
+    const tournament = await prisma.tournament.findUnique({
+        where: { id: tournamentId },
+        select: {
+            spreadsheetUrl: true,
+            teamColumnName: true,
+            resultColumnName: true,
+            teams: {
+                select: {
+                    id: true,
+                    name: true
+                }
+            }
+        }
+    });
+
+    if (!tournament?.spreadsheetUrl || !tournament.teamColumnName || !tournament.resultColumnName) {
+        throw new Error('Spreadsheet not configured for this tournament');
+    }
+
+    try {
+        const response = await fetch(tournament.spreadsheetUrl);
+        if (!response.ok) {
+            throw new Error('Failed to fetch spreadsheet');
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const worksheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[worksheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet);
+
+        const headerRow = data[0] as Record<string, any>;
+        const teamColumn = mapColumnNameToSheetLetter(tournament.teamColumnName, headerRow);
+        const resultColumn = mapColumnNameToSheetLetter(tournament.resultColumnName, headerRow);
+
+        if (!teamColumn || !resultColumn) { throw new Error('Could not find team or result column in spreadsheet') }
+
+        let updatedCount = 0;
+        for (const row of data.slice(1)) {
+            const rowData = row as Record<string, any>;
+            const teamName = rowData[teamColumn];
+            const points = rowData[resultColumn];
+            if (!teamName || !points) { continue }
+
+            const matchingTeam = tournament.teams.find(team =>
+                team.name.toLowerCase() === teamName.toString().toLowerCase()
+            );
+            if (!matchingTeam) { continue }
+
+            await prisma.team.update({
+                where: { id: matchingTeam.id },
+                data: { points }
+            });
+            updatedCount++;
+        }
+
+        await updateIdealPick(tournamentId);
+        
+        return { message: `Updated ${updatedCount} teams with results from spreadsheet` };
+    } catch (error) {
+        console.error('Error fetching results:', error);
+        throw new Error('Failed to process spreadsheet: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+}
+
+function mapColumnNameToSheetLetter(columnName: string, headerRow: Record<string, any>): string | undefined {
+    return Object.keys(headerRow).find(k => headerRow[k] === columnName);
+}
