@@ -3,8 +3,8 @@
 import React, { useState, FormEvent } from 'react';
 import {Tournament} from "@/app/tournaments/[tournamentSlug]/types";
 import { format, parseISO } from 'date-fns';
-import {Box, FormControl, FormLabel, Input, Textarea, Button, VStack, Heading} from '@chakra-ui/react';
-import {updateTournament} from "@/app/actions";
+import {Box, FormControl, FormLabel, Input, Textarea, Button, VStack, Heading, Alert, AlertIcon, HStack} from '@chakra-ui/react';
+import {updateTournament, fetchResults} from "@/app/actions";
 
 type EditTournamentProps = {
     tournament: Omit<Tournament, 'isOpen'>;
@@ -20,6 +20,8 @@ export default function EditTournament({ tournament, teams }: EditTournamentProp
     const [teamColumnName, setTeamColumnName] = useState(tournament.teamColumnName || '');
     const [resultColumnName, setResultColumnName] = useState(tournament.resultColumnName || '');
     const [teamsStr, setTeamsStr] = useState(teams);
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState('');
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -34,6 +36,25 @@ export default function EditTournament({ tournament, teams }: EditTournamentProp
             teamColumnName: teamColumnName || null,
             resultColumnName: resultColumnName || null
         }, teamsStr);
+    };
+
+    const handleFetchResults = async () => {
+        if (!spreadsheetUrl || !teamColumnName || !resultColumnName) {
+            setMessage('Configure spreadsheet URL, team column name, and result column name first');
+            return;
+        }
+
+        setIsLoading(true);
+        setMessage('');
+        
+        try {
+            const result = await fetchResults(tournament.id);
+            setMessage(result.message);
+        } catch (error) {
+            setMessage('Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return <>
@@ -106,7 +127,26 @@ export default function EditTournament({ tournament, teams }: EditTournamentProp
                             onChange={(e) => setTeamsStr(e.target.value)}
                         />
                     </FormControl>
-                    <Button type='submit' colorScheme='blue'>Submit</Button>
+                    
+                    {message && (
+                        <Alert status={message.startsWith('Error') ? 'error' : 'success'}>
+                            <AlertIcon />
+                            {message}
+                        </Alert>
+                    )}
+                    
+                    <HStack spacing={4} width="100%">
+                        <Button 
+                            onClick={handleFetchResults}
+                            colorScheme='green'
+                            isLoading={isLoading}
+                            loadingText="Fetching..."
+                            isDisabled={!spreadsheetUrl || !teamColumnName || !resultColumnName}
+                        >
+                            Fetch results
+                        </Button>
+                        <Button type='submit' colorScheme='blue'>Submit</Button>
+                    </HStack>
                 </VStack>
             </form>
         </Box>
