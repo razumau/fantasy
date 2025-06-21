@@ -9,10 +9,10 @@
     "build": "prisma generate && prisma db push && prisma db seed && next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest --config=jest.config.js"
+    "test": "bun test"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "bun prisma/seed.ts"
   },
   "dependencies": {
     "@chakra-ui/next-js": "^2.2.0",

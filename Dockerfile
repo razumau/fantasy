@@ -1,10 +1,6 @@
 # syntax = docker/dockerfile:1
 
-# Adjust NODE_VERSION as desired
-ARG NODE_VERSION=19.8.1
-FROM node:${NODE_VERSION}-slim AS base
-
-LABEL fly_launch_runtime="Next.js/Prisma"
+FROM oven/bun:1.2.17 AS base
 
 # Next.js/Prisma app lives here
 WORKDIR /app
@@ -14,34 +10,29 @@ ENV NEXT_TELEMETRY_DISABLED="1" \
     NODE_ENV="production" \
     DATABASE_URL="file:/data/sqlite.db"
 
-# Install pnpm
-ARG PNPM_VERSION=9.6.0
-RUN npm install -g pnpm@$PNPM_VERSION
-
-
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp openssl pkg-config python-is-python3
+    apt-get install --no-install-recommends -y build-essential openssl pkg-config
 
 # Install node modules
-COPY --link package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod=false
+COPY --link package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 # Generate Prisma Client
 COPY --link prisma .
-RUN npx prisma generate
+RUN bunx prisma generate
 
 # Copy application code
 COPY --link . .
 
 # Build application
-RUN pnpm run build
+RUN bun run build
 
 # Remove development dependencies
-RUN pnpm prune --prod
+RUN bun install --production
 
 
 # Final stage for app image

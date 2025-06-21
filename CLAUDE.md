@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- `pnpm dev` - Start development server (generates Prisma client first)
-- `pnpm build` - Build for production (generates Prisma client, pushes DB schema, seeds DB)
-- `pnpm start` - Start production server
-- `pnpm lint` - Run ESLint
-- `pnpm test` - Run Jest tests
+- `bun dev` - Start development server (generates Prisma client first)
+- `bun build` - Build for production (generates Prisma client, pushes DB schema, seeds DB)
+- `bun start` - Start production server
+- `bun lint` - Run ESLint
+- `bun test` - Run Jest tests
 - `prisma db push` - Push schema changes to database
 - `prisma db seed` - Seed database with initial data
 - `prisma generate` - Generate Prisma client
