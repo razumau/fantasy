@@ -6,16 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          version: 9
-      - name: Use Node.js 19
-        uses: actions/setup-node@v4
-        with:
-          node-version: 19
-          cache: 'pnpm'
+          bun-version-file: .bun-version
       - name: Install dependencies
-        run: pnpm install
-      - name: Run tests
-        run: pnpm test
+        run: bun install
+      - name: Tests
+        run: bun test
+      - name: Linter
+        run: bun lint
