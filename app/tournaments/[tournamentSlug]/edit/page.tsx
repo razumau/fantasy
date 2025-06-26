@@ -15,7 +15,6 @@ export default async function Page({ params }: { params: { tournamentSlug: strin
     }
     
     const teams = await fetchTeamsForTournament(tournament.id);
-    const teamsStr = teams.map(team => `${team.name} ${team.price} ${team.points}`).join('\n')
 
-    return <Edit tournament={tournament} teams={teamsStr}/>
+    return <Edit tournament={tournament} teams={teams}/>
 }

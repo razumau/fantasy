@@ -300,3 +300,41 @@ function parseTeamsForCreate(teamsStr: string): { name: string; price: number }[
         return { name, price };
     });
 }
+
+type TeamUpdate = {
+    id: number;
+    name: string;
+    price: number;
+    points: number;
+    tournamentId: number;
+}
+
+export async function updateTournamentWithTeams(tournament: TournamentDetails, teams: TeamUpdate[]) {
+    await prisma.tournament.update({
+        where: {
+            id: tournament.id,
+        },
+        data: {
+            title: tournament.title,
+            deadline: tournament.deadline,
+            maxTeams: tournament.maxTeams,
+            maxPrice: tournament.maxPrice,
+            spreadsheetUrl: tournament.spreadsheetUrl,
+            teamColumnName: tournament.teamColumnName,
+            resultColumnName: tournament.resultColumnName,
+        }
+    });
+
+    for (const team of teams) {
+        await prisma.team.update({
+            where: { id: team.id },
+            data: {
+                name: team.name,
+                price: team.price,
+                points: team.points,
+            }
+        });
+    }
+    
+    await updateIdealPick(tournament.id);
+}
