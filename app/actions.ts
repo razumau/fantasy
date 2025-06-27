@@ -218,9 +218,7 @@ export async function fetchResults(tournamentId: number) {
             const points = rowData[resultColumn];
             if (!teamName || !points) { continue }
 
-            const matchingTeam = tournament.teams.find(team =>
-                team.name.toLowerCase() === teamName.toString().toLowerCase()
-            );
+            const matchingTeam = findMatchingTeam(tournament.teams, teamName.toString());
             if (!matchingTeam) { continue }
 
             await prisma.team.update({
@@ -242,6 +240,27 @@ export async function fetchResults(tournamentId: number) {
 function mapColumnNameToSheetLetter(columnName: string, headerRow: Record<string, any>): string | undefined {
     return Object.keys(headerRow).find(k => headerRow[k] === columnName);
 }
+
+function findMatchingTeam(teams: Array<{id: number, name: string}>, spreadsheetTeamName: string) {
+    const normalizedSpreadsheetName = spreadsheetTeamName.toLowerCase().trim();
+
+    const exactMatch = teams.find(team =>
+        team.name.toLowerCase().trim() === normalizedSpreadsheetName
+    );
+    if (exactMatch) return exactMatch;
+
+    const partialMatch = teams.find(team => {
+        const baseTeamName = team.name.replace(/\s*\([^)]*\)\s*$/, '').toLowerCase().trim();
+        return baseTeamName === normalizedSpreadsheetName;
+    });
+    if (partialMatch) return partialMatch;
+
+    const baseSpreadsheetName = normalizedSpreadsheetName.replace(/\s*\([^)]*\)\s*$/, '');
+    return teams.find(team =>
+        team.name.toLowerCase().trim() === baseSpreadsheetName
+    );
+}
+
 
 type CreateTournamentDetails = {
     title: string;
