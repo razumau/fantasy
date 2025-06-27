@@ -1,5 +1,5 @@
 import React from "react";
-import {fetchOrCreateTournament, fetchTeamsForTournament} from "@/src/services/tournamentService";
+import {fetchTournamentBySlug, fetchTeamsForTournament} from "@/src/services/tournamentService";
 import {fetchAdminStatus} from "@/src/services/userService";
 import Edit from "@/app/tournaments/[tournamentSlug]/edit/EditTournament";
 
@@ -9,9 +9,12 @@ export default async function Page({ params }: { params: { tournamentSlug: strin
         throw new Error('You are not allowed here');
     }
 
-    const tournament = await fetchOrCreateTournament(params.tournamentSlug);
+    const tournament = await fetchTournamentBySlug(params.tournamentSlug);
+    if (!tournament) {
+        throw new Error('Tournament not found');
+    }
+    
     const teams = await fetchTeamsForTournament(tournament.id);
-    const teamsStr = teams.map(team => `${team.name} ${team.price} ${team.points}`).join('\n')
 
-    return <Edit tournament={tournament} teams={teamsStr}/>
+    return <Edit tournament={tournament} teams={teams}/>
 }

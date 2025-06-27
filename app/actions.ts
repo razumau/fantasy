@@ -242,3 +242,99 @@ export async function fetchResults(tournamentId: number) {
 function mapColumnNameToSheetLetter(columnName: string, headerRow: Record<string, any>): string | undefined {
     return Object.keys(headerRow).find(k => headerRow[k] === columnName);
 }
+
+type CreateTournamentDetails = {
+    title: string;
+    slug: string;
+    deadline: Date;
+    maxTeams: number;
+    maxPrice: number;
+    spreadsheetUrl?: string | null;
+    teamColumnName?: string | null;
+    resultColumnName?: string | null;
+}
+
+export async function createTournament(tournamentDetails: CreateTournamentDetails, teamsStr: string) {
+    const tournament = await prisma.tournament.create({
+        data: {
+            title: tournamentDetails.title,
+            slug: tournamentDetails.slug,
+            deadline: tournamentDetails.deadline,
+            maxTeams: tournamentDetails.maxTeams,
+            maxPrice: tournamentDetails.maxPrice,
+            spreadsheetUrl: tournamentDetails.spreadsheetUrl,
+            teamColumnName: tournamentDetails.teamColumnName,
+            resultColumnName: tournamentDetails.resultColumnName,
+        }
+    });
+
+    const teams = parseTeamsForCreate(teamsStr);
+    for (const team of teams) {
+        await prisma.team.create({
+            data: {
+                tournamentId: tournament.id,
+                name: team.name,
+                price: team.price,
+                points: 0,
+            }
+        });
+    }
+
+    return tournament;
+}
+
+function parseTeamsForCreate(teamsStr: string): { name: string; price: number }[] {
+    const lines = teamsStr.trim().split("\n");
+    return lines.map((line: string) => {
+        const parts = line.trim().split(" ");
+        if (parts.length < 2) {
+            throw new Error("Invalid line format: " + line + ". Expected format: 'TeamName Price'");
+        }
+
+        const price = parseInt(parts[parts.length - 1]);
+        if (isNaN(price)) {
+            throw new Error("Invalid price in line: " + line);
+        }
+
+        const name = parts.slice(0, -1).join(" ");
+        return { name, price };
+    });
+}
+
+type TeamUpdate = {
+    id: number;
+    name: string;
+    price: number;
+    points: number;
+    tournamentId: number;
+}
+
+export async function updateTournamentWithTeams(tournament: TournamentDetails, teams: TeamUpdate[]) {
+    await prisma.tournament.update({
+        where: {
+            id: tournament.id,
+        },
+        data: {
+            title: tournament.title,
+            deadline: tournament.deadline,
+            maxTeams: tournament.maxTeams,
+            maxPrice: tournament.maxPrice,
+            spreadsheetUrl: tournament.spreadsheetUrl,
+            teamColumnName: tournament.teamColumnName,
+            resultColumnName: tournament.resultColumnName,
+        }
+    });
+
+    for (const team of teams) {
+        await prisma.team.update({
+            where: { id: team.id },
+            data: {
+                name: team.name,
+                price: team.price,
+                points: team.points,
+            }
+        });
+    }
+    
+    await updateIdealPick(tournament.id);
+}

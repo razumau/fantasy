@@ -10,6 +10,9 @@ export async function fetchTournamentBySlug(slug: string) {
             maxPrice: true,
             maxTeams: true,
             deadline: true,
+            spreadsheetUrl: true,
+            teamColumnName: true,
+            resultColumnName: true,
         }
     });
 
