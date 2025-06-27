@@ -216,7 +216,7 @@ export async function fetchResults(tournamentId: number) {
             const rowData = row as Record<string, any>;
             const teamName = rowData[teamColumn];
             const points = rowData[resultColumn];
-            if (!teamName || !points) { continue }
+            if (!teamName || points == null) { continue }
 
             const matchingTeam = findMatchingTeam(tournament.teams, teamName.toString());
             if (!matchingTeam) { continue }
