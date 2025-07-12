@@ -6,10 +6,11 @@
   "private": true,
   "scripts": {
     "dev": "prisma generate && next dev",
-    "build": "prisma generate && prisma db push && prisma db seed && next build",
+    "prisma_build": "prisma generate && prisma db push && prisma db seed",
+    "build": "bun run prisma_build && next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "bun test"
+    "test": "bun run prisma_build && bun test"
   },
   "prisma": {
     "seed": "bun prisma/seed.ts"
