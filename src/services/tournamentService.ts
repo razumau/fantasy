@@ -158,3 +158,87 @@ export async function fetchClosedTournaments() {
         }
     });
 }
+
+export async function fetchClosedTournamentsWithWinners() {
+    const tournaments = await prisma.tournament.findMany({
+        where: {
+            deadline: {
+                lte: new Date()
+            },
+            title: {
+                not: {
+                    startsWith: 'Test'
+                }
+            },
+            IdealPick: {
+                isNot: null
+            }
+        },
+        select: {
+            title: true,
+            slug: true,
+            deadline: true,
+            id: true,
+            IdealPick: {
+                select: {
+                    points: true
+                }
+            }
+        },
+        orderBy: {
+            deadline: 'desc'
+        }
+    });
+
+    const tournamentsWithWinners = await Promise.all(
+        tournaments.map(async (tournament) => {
+            const picks = await prisma.pick.findMany({
+                where: {
+                    tournamentId: tournament.id,
+                    NOT: {
+                        teamIds: '[]'
+                    }
+                },
+                select: {
+                    teamIds: true,
+                    user: { select: { name: true } }
+                }
+            });
+
+            const teams = await prisma.team.findMany({
+                where: { tournamentId: tournament.id },
+                select: { id: true, points: true }
+            });
+
+            const teamsMap = new Map(teams.map(team => [team.id, team.points]));
+
+            const results = picks
+                .map(pick => {
+                    const teamIds = JSON.parse(pick.teamIds);
+                    const points = teamIds.reduce((sum: number, id: number) => sum + (teamsMap.get(id) || 0), 0);
+                    return {
+                        username: pick.user.name,
+                        points
+                    };
+                })
+                .sort((a, b) => b.points - a.points);
+
+            const winners = results.length > 0 
+                ? results.filter(result => result.points === results[0].points)
+                : [];
+            const idealPoints = tournament.IdealPick?.points || 0;
+            const numberOfPlayers = picks.length;
+
+            return {
+                title: tournament.title,
+                slug: tournament.slug,
+                deadline: tournament.deadline,
+                winners,
+                idealPoints,
+                numberOfPlayers
+            };
+        })
+    );
+
+    return tournamentsWithWinners;
+}
