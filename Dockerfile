@@ -32,7 +32,7 @@ COPY --link . .
 RUN bun run build
 
 # Remove development dependencies
-RUN bun install --production
+RUN bun install --production --frozen-lockfile
 
 
 # Final stage for app image
