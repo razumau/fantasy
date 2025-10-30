@@ -1,19 +1,17 @@
-import { authMiddleware } from "@clerk/nextjs";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// See https://clerk.com/docs/references/nextjs/auth-middleware
-// for more information about configuring your Middleware
+// Public routes that don't require authentication
+const isPublicRoute = createRouteMatcher([
+    '/',
+    '/privacy',
+    '/tournaments/:tournamentSlug/popular',
+    '/tournaments/:tournamentSlug/results',
+]);
 
-export default authMiddleware({
-    // Allow signed out users to access the specified routes:
-    publicRoutes: ['/',
-        '/tournaments/:tournamentSlug/popular',
-        '/tournaments/:tournamentSlug/results',
-        '/privacy',
-        '/',
-    ],
-    // Prevent the specified routes from accessing
-    // authentication information:
-    // ignoredRoutes: ['/no-auth-in-this-route'],
+export default clerkMiddleware(async (auth, req) => {
+    if (!isPublicRoute(req)) {
+        await auth.protect();
+    }
 });
 
 export const config = {
