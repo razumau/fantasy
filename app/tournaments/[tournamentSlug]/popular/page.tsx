@@ -2,7 +2,8 @@ import { fetchTournamentBySlug, fetchPopularTeamsForTournament } from "@/src/ser
 import React from "react";
 import PopularTeams from "@/app/tournaments/[tournamentSlug]/popular/PopularTeams";
 
-export default async function Page({ params }: { params: { tournamentSlug: string } }) {
+export default async function Page(props: { params: Promise<{ tournamentSlug: string }> }) {
+    const params = await props.params;
     const tournament = await fetchTournamentBySlug(params.tournamentSlug);
     if (!tournament) {
         throw new Error('There is no tournament with this ID');

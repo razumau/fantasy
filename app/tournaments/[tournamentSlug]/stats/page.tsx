@@ -4,7 +4,8 @@ import { fetchTeamStats, fetchTournamentMetrics } from "@/src/services/statsServ
 import React from "react";
 import Stats from "@/app/tournaments/[tournamentSlug]/stats/Stats";
 
-export default async function Page({ params }: { params: { tournamentSlug: string } }) {
+export default async function Page(props: { params: Promise<{ tournamentSlug: string }> }) {
+    const params = await props.params;
     const tournament = await fetchTournamentBySlug(params.tournamentSlug);
     if (!tournament) {
         throw new Error('There is no tournament with this ID');

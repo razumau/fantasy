@@ -3,7 +3,8 @@ import {fetchTournamentResults, fetchIdealPick} from "@/src/services/resultsServ
 import React from "react";
 import Results from "@/app/tournaments/[tournamentSlug]/results/Results";
 
-export default async function Page({ params }: { params: { tournamentSlug: string } }) {
+export default async function Page(props: { params: Promise<{ tournamentSlug: string }> }) {
+    const params = await props.params;
     const tournament = await fetchTournamentBySlug(params.tournamentSlug);
     if (!tournament) {
         throw new Error('There is no tournament with this ID');
