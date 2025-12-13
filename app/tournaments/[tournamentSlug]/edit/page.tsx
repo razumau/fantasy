@@ -3,7 +3,8 @@ import {fetchTournamentBySlug, fetchTeamsForTournament} from "@/src/services/tou
 import {fetchAdminStatus} from "@/src/services/userService";
 import Edit from "@/app/tournaments/[tournamentSlug]/edit/EditTournament";
 
-export default async function Page({ params }: { params: { tournamentSlug: string } }) {
+export default async function Page(props: { params: Promise<{ tournamentSlug: string }> }) {
+    const params = await props.params;
     const isAdmin = await fetchAdminStatus();
     if (!isAdmin) {
         throw new Error('You are not allowed here');

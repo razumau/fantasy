@@ -4,7 +4,7 @@ import React from "react";
 import { fetchOpenTournaments, fetchClosedTournaments, fetchClosedTournamentsWithWinners } from '@/src/services/tournamentService';
 
 interface PageProps {
-    searchParams: { winners?: string };
+    searchParams: Promise<{ winners?: string }>;
 }
 
 interface TournamentWithWinners {
@@ -19,7 +19,8 @@ interface TournamentWithWinners {
     numberOfPlayers: number;
 }
 
-export default async function HomePage({ searchParams }: PageProps) {
+export default async function HomePage(props: PageProps) {
+    const searchParams = await props.searchParams;
     const openTournaments = await fetchOpenTournaments();
     const showWinners = searchParams.winners === 'true';
     const closedTournaments = showWinners 

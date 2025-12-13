@@ -3,13 +3,14 @@ import { fetchTournamentBySlug, fetchTeamsForTournament, fetchPicks } from "@/sr
 import TournamentTeamsPage from './teams'
 
 type Props = {
-    params: { tournamentSlug: string }
+    params: Promise<{ tournamentSlug: string }>
 }
 
 export async function generateMetadata(
-    { params }: Props,
+    props: Props,
     parent: ResolvingMetadata
 ): Promise<Metadata> {
+    const params = await props.params
     const tournament = await fetchTournamentBySlug(params.tournamentSlug)
 
     if (!tournament) {
@@ -28,7 +29,8 @@ export async function generateMetadata(
     }
 }
 
-export default async function Page({ params }: { params: { tournamentSlug: string } }) {
+export default async function Page(props: { params: Promise<{ tournamentSlug: string }> }) {
+    const params = await props.params;
     const tournament = await fetchTournamentBySlug(params.tournamentSlug);
     if (!tournament) {
         throw new Error('There is no tournament with this ID');
