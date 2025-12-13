@@ -28,6 +28,10 @@ RUN bunx prisma generate
 # Copy application code
 COPY --link . .
 
+# Build argument for Clerk publishable key (required at build time for Next.js)
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+
 # Build application
 RUN bun run build
 
