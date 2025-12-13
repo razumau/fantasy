@@ -1,9 +1,7 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
-import { ColorModeScript } from '@chakra-ui/react'
 import { Providers } from './providers'
-import customTheme from './theme'
 
 export const metadata = {
   metadataBase: new URL('https://fantasy.razumau.net'),
@@ -27,7 +25,6 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
       <body className={inter.variable}>
-        <ColorModeScript initialColorMode={customTheme.config.initialColorMode} />
         <Providers>{children}</Providers>
       </body>
       </html>

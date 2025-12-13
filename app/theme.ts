@@ -12,10 +12,6 @@ export const linkTheme = defineStyleConfig({
     }
 })
 const overrides = {
-    config: {
-        initialColorMode: 'system',
-        useSystemColorMode: true,
-    },
     styles: {
         global: {
         },
