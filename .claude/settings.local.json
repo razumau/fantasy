@@ -16,7 +16,13 @@
       "Bash(git commit:*)",
       "Bash(mix compile:*)",
       "Bash(mix deps.compile:*)",
-      "Bash(mix test:*)"
+      "Bash(mix test:*)",
+      "Bash(mix ecto.gen.migration:*)",
+      "Bash(mix ecto.migrate:*)",
+      "Bash(sqlite3:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(mix run:*)"
     ],
     "deny": []
   }
