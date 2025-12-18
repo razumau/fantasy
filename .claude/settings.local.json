@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(bun install:*)",
+      "Bash(bun run lint:*)",
+      "Bash(bun test:*)",
+      "Bash(bun run dev:*)",
+      "Bash(bun exec prisma:*)",
+      "Bash(bunx prisma:*)",
+      "Bash(bun lint:*)",
+      "Bash(bun run:*)",
+      "Bash(bunx tsc:*)",
+      "Bash(bun:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(mix compile:*)"
+    ],
+    "deny": []
+  }
+}
