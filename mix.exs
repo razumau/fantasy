@@ -62,7 +62,19 @@ defmodule Fantasy.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+
+      # Authentication
+      {:elixir_auth_google, "~> 1.6"},
+
+      # HTTP client for spreadsheet fetching
+      {:finch, "~> 0.18"},
+
+      # XLSX parsing for spreadsheet import
+      {:xlsxir, "~> 1.6"},
+
+      # Date/time utilities
+      {:timex, "~> 3.7"}
     ]
   end
 
