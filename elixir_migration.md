@@ -1,5 +1,32 @@
 # Migration Plan: Next.js to Phoenix/Elixir with LiveView
 
+## Progress
+
+| Phase | Status | Commits |
+|-------|--------|---------|
+| 1. Project Setup | ✅ Complete | `964f270`, `00c72b9` |
+| 2. Database Migration | ✅ Complete | `d8bf0d1` |
+| 3. Authentication | ⬜ Not started | - |
+| 4. Contexts | ⬜ Not started | - |
+| 5. LiveViews | ⬜ Not started | - |
+| 6. Deployment | ⬜ Not started | - |
+| 7. Migration Execution | ⬜ Not started | - |
+
+### Completed Work
+
+**Phase 1: Project Setup** (3 commits)
+- Removed Next.js files, preserved database backup
+- Created Phoenix 1.8 project with SQLite, LiveView, Tailwind
+- Added dependencies: elixir_auth_google, finch, xlsxir, timex
+
+**Phase 2: Database Migration** (1 commit)
+- Created all 5 Ecto schemas matching Prisma tables
+- Custom `Fantasy.Ecto.UnixTimestamp` type for Prisma millisecond timestamps
+- Base tables migration + google_id migration
+- Tested schemas with production database backup
+
+---
+
 ## Overview
 Migrate the fantasy sports tournament app from Next.js/React to Phoenix/Elixir with LiveView. Replace Clerk authentication with elixir_auth_google. Keep SQLite with fly.io + litestream.
 
