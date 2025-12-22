@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1
 
-FROM oven/bun:1.3.4 AS base
+FROM oven/bun:1.3.5 AS base
 
 # Next.js/Prisma app lives here
 WORKDIR /app
