@@ -9,7 +9,7 @@
 | 3. Authentication | ✅ Complete | - |
 | 4. Contexts | ✅ Complete | - |
 | 5. LiveViews | ✅ Complete | - |
-| 6. Deployment | ⬜ Not started | - |
+| 6. Deployment | ✅ Complete | - |
 | 7. Migration Execution | ⬜ Not started | - |
 
 ### Completed Work
@@ -48,6 +48,14 @@
 - Created `TournamentLive.Create` for admin tournament creation
 - Updated router with all routes and pipelines
 - Updated app layout with auth-aware header
+
+**Phase 6: Deployment**
+- Created multi-stage Dockerfile (Elixir 1.18.3/OTP 27, Debian bookworm)
+- Added litestream for S3 backup/restore of SQLite database
+- Created entrypoint script: restore -> migrate -> replicate
+- Created `Fantasy.Release` module for production migrations
+- Updated fly.toml for Phoenix (port 4000, /data mount)
+- Updated litestream.yml to exec Phoenix release
 
 ---
 

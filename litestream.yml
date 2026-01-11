@@ -1,10 +1,14 @@
 access-key-id: ${AWS_ACCESS_KEY_ID}
 secret-access-key: ${AWS_SECRET_ACCESS_KEY}
-exec: bun start
+
+# Litestream will exec the Phoenix server after restoring
+exec: /app/bin/fantasy start
+
 logging:
   level: info
   type: text
   stderr: false
+
 dbs:
   - path: /data/sqlite.db
     replicas:
