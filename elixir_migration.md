@@ -6,9 +6,9 @@
 |-------|--------|---------|
 | 1. Project Setup | ✅ Complete | `964f270`, `00c72b9` |
 | 2. Database Migration | ✅ Complete | `d8bf0d1` |
-| 3. Authentication | ⬜ Not started | - |
-| 4. Contexts | ⬜ Not started | - |
-| 5. LiveViews | ⬜ Not started | - |
+| 3. Authentication | ✅ Complete | - |
+| 4. Contexts | ✅ Complete | - |
+| 5. LiveViews | ✅ Complete | - |
 | 6. Deployment | ⬜ Not started | - |
 | 7. Migration Execution | ⬜ Not started | - |
 
@@ -24,6 +24,30 @@
 - Custom `Fantasy.Ecto.UnixTimestamp` type for Prisma millisecond timestamps
 - Base tables migration + google_id migration
 - Tested schemas with production database backup
+
+**Phase 3: Authentication**
+- Added `elixir_auth_google` config in dev.exs and runtime.exs
+- Created `Fantasy.Accounts` context with user management functions
+- Created `AuthController` with login/callback/logout actions
+- Created auth plugs: `FetchCurrentUser`, `RequireAuth`, `RequireAdmin`
+- Created LiveView hooks: `:require_auth`, `:require_admin`, `:maybe_auth`
+- Updated router with auth routes and pipelines
+
+**Phase 4: Contexts**
+- Created `Fantasy.Tournaments` context with tournament/team/pick CRUD
+- Created `Fantasy.Results` context with rankings and knapsack algorithm
+- Created `Fantasy.Stats` context with tournament metrics
+
+**Phase 5: LiveViews**
+- Created `HomeLive` for tournament listing (open/closed)
+- Created `TournamentLive.Show` for team selection with real-time updates
+- Created `TournamentLive.Results` for tournament rankings
+- Created `TournamentLive.Popular` for popular picks analysis
+- Created `TournamentLive.Stats` for tournament statistics
+- Created `TournamentLive.Edit` for admin tournament editing
+- Created `TournamentLive.Create` for admin tournament creation
+- Updated router with all routes and pipelines
+- Updated app layout with auth-aware header
 
 ---
 
