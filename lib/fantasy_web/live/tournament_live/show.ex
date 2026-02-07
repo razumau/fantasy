@@ -167,7 +167,7 @@ defmodule FantasyWeb.TournamentLive.Show do
           </div>
         </div>
 
-        <div>
+        <div class="-order-1 lg:order-none">
           <div class="card bg-base-200 sticky top-4 p-5 space-y-4">
             <h2 class="text-xl font-bold">Your Selection</h2>
 
