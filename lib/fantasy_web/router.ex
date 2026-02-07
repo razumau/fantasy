@@ -43,18 +43,18 @@ defmodule FantasyWeb.Router do
     delete "/logout", AuthController, :logout
   end
 
-  # Protected routes (require login)
-  scope "/", FantasyWeb do
-    pipe_through [:browser, :require_auth]
-
-    live "/tournaments/:slug", TournamentLive.Show
-  end
-
   # Admin routes
   scope "/", FantasyWeb do
     pipe_through [:browser, :require_admin]
 
     live "/tournaments/create", TournamentLive.Create
     live "/tournaments/:slug/edit", TournamentLive.Edit
+  end
+
+  # Protected routes (require login)
+  scope "/", FantasyWeb do
+    pipe_through [:browser, :require_auth]
+
+    live "/tournaments/:slug", TournamentLive.Show
   end
 end
