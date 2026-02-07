@@ -66,7 +66,7 @@ defmodule Fantasy.Tournaments do
   Creates a new tournament with the given attributes.
   """
   def create_tournament(attrs) do
-    now = System.system_time(:millisecond)
+    now = DateTime.utc_now()
 
     %Tournament{}
     |> Tournament.create_changeset(attrs)
@@ -79,7 +79,7 @@ defmodule Fantasy.Tournaments do
   Updates a tournament with the given attributes.
   """
   def update_tournament(%Tournament{} = tournament, attrs) do
-    now = System.system_time(:millisecond)
+    now = DateTime.utc_now()
 
     tournament
     |> Tournament.update_changeset(attrs)

@@ -61,7 +61,7 @@ defmodule Fantasy.Accounts do
     - {:ok, user} on success
     - {:error, changeset} on failure
   """
-  def find_or_create_user(%{"sub" => google_id, "email" => email} = _google_user) do
+  def find_or_create_user(%{sub: google_id, email: email} = _google_user) do
     case get_user_by_google_id(google_id) do
       %User{} = user ->
         {:ok, user}
@@ -86,7 +86,7 @@ defmodule Fantasy.Accounts do
   Creates a new user.
   """
   def create_user(attrs) do
-    now = System.system_time(:millisecond)
+    now = DateTime.utc_now()
 
     %User{}
     |> User.create_changeset(attrs)
@@ -99,7 +99,7 @@ defmodule Fantasy.Accounts do
   Links a Google ID to an existing user.
   """
   def link_google_id(%User{} = user, google_id) do
-    now = System.system_time(:millisecond)
+    now = DateTime.utc_now()
 
     user
     |> User.link_google_changeset(%{google_id: google_id})
@@ -111,7 +111,7 @@ defmodule Fantasy.Accounts do
   Updates a user.
   """
   def update_user(%User{} = user, attrs) do
-    now = System.system_time(:millisecond)
+    now = DateTime.utc_now()
 
     user
     |> User.update_changeset(attrs)
