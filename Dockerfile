@@ -91,6 +91,6 @@ RUN useradd --create-home app
 RUN chown -R app:app /app /data
 USER app
 
-EXPOSE 4000
+EXPOSE 4001
 
 ENTRYPOINT ["/app/entrypoint.sh"]

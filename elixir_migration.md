@@ -54,7 +54,7 @@
 - Added litestream for S3 backup/restore of SQLite database
 - Created entrypoint script: restore -> migrate -> replicate
 - Created `Fantasy.Release` module for production migrations
-- Updated fly.toml for Phoenix (port 4000, /data mount)
+- Updated fly.toml for Phoenix (port 4001, /data mount)
 - Updated litestream.yml to exec Phoenix release
 
 ---
