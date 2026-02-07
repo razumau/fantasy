@@ -15,8 +15,7 @@ defmodule FantasyWeb.TournamentLive.Create do
      assign(socket,
        page_title: "Create Tournament",
        changeset: changeset,
-       teams: [],
-       next_team_id: 1
+       teams_text: ""
      )}
   end
 
@@ -29,44 +28,17 @@ defmodule FantasyWeb.TournamentLive.Create do
       |> Tournament.create_changeset(tournament_params)
       |> Map.put(:action, :validate)
 
-    teams = update_teams_from_params(socket.assigns.teams, Map.get(params, "teams", %{}))
+    teams_text = Map.get(params, "teams_text", socket.assigns.teams_text)
 
-    {:noreply, assign(socket, changeset: changeset, teams: teams)}
-  end
-
-  @impl true
-  def handle_event("add_team", _, socket) do
-    new_team = %{temp_id: socket.assigns.next_team_id, name: "", price: 10, points: 0}
-
-    {:noreply,
-     assign(socket,
-       teams: socket.assigns.teams ++ [new_team],
-       next_team_id: socket.assigns.next_team_id + 1
-     )}
-  end
-
-  @impl true
-  def handle_event("remove_team", %{"temp-id" => temp_id}, socket) do
-    temp_id = String.to_integer(temp_id)
-    teams = Enum.reject(socket.assigns.teams, &(&1.temp_id == temp_id))
-    {:noreply, assign(socket, teams: teams)}
+    {:noreply, assign(socket, changeset: changeset, teams_text: teams_text)}
   end
 
   @impl true
   def handle_event("create", params, socket) do
     tournament_params = convert_deadline(Map.get(params, "tournament", %{}))
-    teams_params = Map.get(params, "teams", %{})
+    teams_text = Map.get(params, "teams_text", "")
 
-    teams_data =
-      teams_params
-      |> Enum.map(fn {_id, p} ->
-        %{
-          name: String.trim(p["name"] || ""),
-          price: parse_int(p["price"], 10),
-          points: parse_int(p["points"], 0)
-        }
-      end)
-      |> Enum.reject(fn t -> t.name == "" end)
+    teams_data = parse_teams(teams_text)
 
     with {:ok, tournament} <- Tournaments.create_tournament(tournament_params),
          {:ok, _teams} <- create_teams(tournament.id, teams_data) do
@@ -92,39 +64,31 @@ defmodule FantasyWeb.TournamentLive.Create do
 
   defp convert_deadline(params), do: params
 
+  defp parse_teams(text) do
+    text
+    |> String.split("\n")
+    |> Enum.map(&String.trim/1)
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.map(&parse_team_line/1)
+    |> Enum.reject(&is_nil/1)
+  end
+
+  defp parse_team_line(line) do
+    case Regex.run(~r/^(.+)\s+(\d+)$/, line) do
+      [_, name, price_str] ->
+        {price, _} = Integer.parse(price_str)
+        %{name: String.trim(name), price: price, points: 0}
+
+      nil ->
+        %{name: String.trim(line), price: 10, points: 0}
+    end
+  end
+
   defp create_teams(_tournament_id, []), do: {:ok, []}
 
   defp create_teams(tournament_id, teams_data) do
     Tournaments.create_teams_for_tournament(tournament_id, teams_data)
   end
-
-  defp update_teams_from_params(teams, teams_params) do
-    Enum.map(teams, fn team ->
-      case Map.get(teams_params, to_string(team.temp_id)) do
-        nil ->
-          team
-
-        params ->
-          %{
-            team
-            | name: Map.get(params, "name", team.name),
-              price: parse_int(Map.get(params, "price", team.price), team.price),
-              points: parse_int(Map.get(params, "points", team.points), team.points)
-          }
-      end
-    end)
-  end
-
-  defp parse_int(val, _default) when is_integer(val), do: val
-
-  defp parse_int(val, default) when is_binary(val) do
-    case Integer.parse(val) do
-      {n, _} -> n
-      :error -> default
-    end
-  end
-
-  defp parse_int(_, default), do: default
 
   @impl true
   def render(assigns) do
@@ -205,65 +169,17 @@ defmodule FantasyWeb.TournamentLive.Create do
           <div class="card-body">
             <h2 class="card-title">Teams</h2>
 
-            <div class="overflow-x-auto">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Price</th>
-                    <th>Points</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <%= for team <- @teams do %>
-                    <tr>
-                      <td>
-                        <input
-                          type="text"
-                          name={"teams[#{team.temp_id}][name]"}
-                          value={team.name}
-                          class="input input-bordered input-sm w-full"
-                          placeholder="Team name"
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          name={"teams[#{team.temp_id}][price]"}
-                          value={team.price}
-                          class="input input-bordered input-sm w-20"
-                          min="1"
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          name={"teams[#{team.temp_id}][points]"}
-                          value={team.points}
-                          class="input input-bordered input-sm w-20"
-                          min="0"
-                        />
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          phx-click="remove_team"
-                          phx-value-temp-id={team.temp_id}
-                          class="btn btn-ghost btn-xs text-error"
-                        >
-                          ✕
-                        </button>
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-
-            <button type="button" phx-click="add_team" class="btn btn-outline btn-sm">
-              + Add Team
-            </button>
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">Teams (one per line)</legend>
+              <textarea
+                name="teams_text"
+                class="textarea textarea-bordered h-48 w-full font-mono"
+                placeholder={"Team Name 25\nAnother Team 30\nThird Team 15"}
+              >{@teams_text}</textarea>
+              <span class="fieldset-label">
+                One team per line: "Team Name 50" (name and price separated by the last space)
+              </span>
+            </fieldset>
           </div>
         </div>
 
