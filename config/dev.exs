@@ -82,8 +82,7 @@ config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
 # Google OAuth configuration for development
-# Set these environment variables or replace with your credentials
 config :elixir_auth_google,
-  client_id: System.get_env("GOOGLE_CLIENT_ID") || "your-client-id",
-  client_secret: System.get_env("GOOGLE_CLIENT_SECRET") || "your-client-secret",
-  redirect_uri: System.get_env("GOOGLE_REDIRECT_URI") || "http://localhost:4000/auth/google/callback"
+  redirect_uri: "http://localhost:4001/auth/google/callback"
+
+import_config "dev.secret.exs"

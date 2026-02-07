@@ -44,6 +44,9 @@ dev.db.backup
 .env
 .env.local
 
+# Secret config files
+/config/*.secret.exs
+
 # macOS
 .DS_Store
 

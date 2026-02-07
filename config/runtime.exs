@@ -20,12 +20,6 @@ if System.get_env("PHX_SERVER") do
   config :fantasy, FantasyWeb.Endpoint, server: true
 end
 
-# Google OAuth configuration (for all environments)
-config :elixir_auth_google,
-  client_id: System.get_env("GOOGLE_CLIENT_ID"),
-  client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
-  redirect_uri: System.get_env("GOOGLE_REDIRECT_URI")
-
 if config_env() == :prod do
   database_path =
     System.get_env("DATABASE_PATH") ||
