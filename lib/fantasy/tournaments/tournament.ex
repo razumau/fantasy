@@ -29,8 +29,16 @@ defmodule Fantasy.Tournaments.Tournament do
   """
   def create_changeset(tournament, attrs) do
     tournament
-    |> cast(attrs, [:deadline, :title, :slug, :max_teams, :max_price,
-                    :spreadsheet_url, :team_column_name, :result_column_name])
+    |> cast(attrs, [
+      :deadline,
+      :title,
+      :slug,
+      :max_teams,
+      :max_price,
+      :spreadsheet_url,
+      :team_column_name,
+      :result_column_name
+    ])
     |> validate_required([:deadline, :title, :slug])
     |> unique_constraint(:slug)
     |> validate_number(:max_teams, greater_than: 0, less_than_or_equal_to: 20)
@@ -42,8 +50,15 @@ defmodule Fantasy.Tournaments.Tournament do
   """
   def update_changeset(tournament, attrs) do
     tournament
-    |> cast(attrs, [:deadline, :title, :max_teams, :max_price,
-                    :spreadsheet_url, :team_column_name, :result_column_name])
+    |> cast(attrs, [
+      :deadline,
+      :title,
+      :max_teams,
+      :max_price,
+      :spreadsheet_url,
+      :team_column_name,
+      :result_column_name
+    ])
     |> validate_required([:deadline, :title])
     |> validate_number(:max_teams, greater_than: 0, less_than_or_equal_to: 20)
     |> validate_number(:max_price, greater_than: 0)

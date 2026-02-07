@@ -106,5 +106,4 @@ defmodule FantasyWeb.Layouts do
     </div>
     """
   end
-
 end

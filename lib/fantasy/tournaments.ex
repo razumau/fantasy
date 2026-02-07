@@ -136,6 +136,13 @@ defmodule Fantasy.Tournaments do
   end
 
   @doc """
+  Deletes a team.
+  """
+  def delete_team(%Team{} = team) do
+    Repo.delete(team)
+  end
+
+  @doc """
   Creates multiple teams for a tournament.
   Expects a list of maps with :name and :price keys.
   """

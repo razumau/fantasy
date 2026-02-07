@@ -55,11 +55,16 @@ defmodule FantasyWeb.HomeLive do
                 <%= for tournament <- @closed_tournaments do %>
                   <tr>
                     <td class="font-medium">{tournament.title}</td>
-                    <td class="text-sm text-base-content/60">{format_deadline(tournament.deadline)}</td>
+                    <td class="text-sm text-base-content/60">
+                      {format_deadline(tournament.deadline)}
+                    </td>
                     <td>{tournament.max_teams}</td>
                     <td>{tournament.max_price}</td>
                     <td>
-                      <.link navigate={~p"/tournaments/#{tournament.slug}/results"} class="link link-hover text-sm">
+                      <.link
+                        navigate={~p"/tournaments/#{tournament.slug}/results"}
+                        class="link link-hover text-sm"
+                      >
                         Results
                       </.link>
                     </td>

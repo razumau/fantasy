@@ -19,8 +19,7 @@ defmodule FantasyWeb.TournamentLive.Edit do
        page_title: "Edit #{tournament.title}",
        tournament: tournament,
        teams: teams,
-       changeset: changeset,
-       editing_team_id: nil
+       changeset: changeset
      )}
   end
 
@@ -36,7 +35,6 @@ defmodule FantasyWeb.TournamentLive.Edit do
 
   @impl true
   def handle_event("save", %{"tournament" => params}, socket) do
-    # Convert deadline string to milliseconds
     params = convert_deadline(params)
 
     case Tournaments.update_tournament(socket.assigns.tournament, params) do
@@ -52,30 +50,56 @@ defmodule FantasyWeb.TournamentLive.Edit do
   end
 
   @impl true
-  def handle_event("edit_team", %{"id" => id}, socket) do
-    {:noreply, assign(socket, editing_team_id: String.to_integer(id))}
+  def handle_event("save_all_teams", %{"teams" => teams_params}, socket) do
+    teams = socket.assigns.teams
+
+    Enum.each(teams_params, fn {id_str, params} ->
+      team = Enum.find(teams, &(&1.id == String.to_integer(id_str)))
+      if team, do: Tournaments.update_team(team, params)
+    end)
+
+    teams = Tournaments.list_teams_for_tournament(socket.assigns.tournament.id)
+    {:noreply, socket |> assign(teams: teams) |> put_flash(:info, "Teams saved.")}
+  end
+
+  def handle_event("save_all_teams", _params, socket) do
+    {:noreply, socket}
   end
 
   @impl true
-  def handle_event("cancel_edit_team", _, socket) do
-    {:noreply, assign(socket, editing_team_id: nil)}
-  end
+  def handle_event("add_team", _, socket) do
+    tournament = socket.assigns.tournament
 
-  @impl true
-  def handle_event("save_team", %{"team" => params}, socket) do
-    team = Enum.find(socket.assigns.teams, &(&1.id == socket.assigns.editing_team_id))
-
-    case Tournaments.update_team(team, params) do
+    case Tournaments.create_team(%{
+           name: "New Team",
+           price: 10,
+           points: 0,
+           tournamentId: tournament.id
+         }) do
       {:ok, _} ->
-        teams = Tournaments.list_teams_for_tournament(socket.assigns.tournament.id)
-
-        {:noreply,
-         socket
-         |> assign(teams: teams, editing_team_id: nil)
-         |> put_flash(:info, "Team updated.")}
+        teams = Tournaments.list_teams_for_tournament(tournament.id)
+        {:noreply, assign(socket, teams: teams)}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to update team.")}
+        {:noreply, put_flash(socket, :error, "Failed to add team.")}
+    end
+  end
+
+  @impl true
+  def handle_event("delete_team", %{"id" => id}, socket) do
+    team = Enum.find(socket.assigns.teams, &(&1.id == String.to_integer(id)))
+
+    if team do
+      case Tournaments.delete_team(team) do
+        {:ok, _} ->
+          teams = Tournaments.list_teams_for_tournament(socket.assigns.tournament.id)
+          {:noreply, assign(socket, teams: teams)}
+
+        {:error, _} ->
+          {:noreply, put_flash(socket, :error, "Failed to delete team.")}
+      end
+    else
+      {:noreply, socket}
     end
   end
 
@@ -114,103 +138,73 @@ defmodule FantasyWeb.TournamentLive.Edit do
         <div class="card-body">
           <h2 class="card-title">Tournament Details</h2>
 
-          <.form for={@changeset} phx-change="validate" phx-submit="save" class="space-y-4">
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Title</span>
-              </label>
+          <.form for={@changeset} phx-change="validate" phx-submit="save">
+            <fieldset class="fieldset">
+              <legend class="fieldset-legend">Title</legend>
               <input
                 type="text"
                 name="tournament[title]"
                 value={@tournament.title}
-                class="input input-bordered"
+                class="input input-bordered w-full"
                 required
               />
-            </div>
 
-            <div class="grid md:grid-cols-2 gap-4">
-              <div class="form-control">
-                <label class="label">
-                  <span class="label-text">Max Teams</span>
-                </label>
-                <input
-                  type="number"
-                  name="tournament[max_teams]"
-                  value={@tournament.max_teams}
-                  class="input input-bordered"
-                  min="1"
-                  max="20"
-                  required
-                />
-              </div>
+              <legend class="fieldset-legend">Max Teams</legend>
+              <input
+                type="number"
+                name="tournament[max_teams]"
+                value={@tournament.max_teams}
+                class="input input-bordered w-full"
+                min="1"
+                max="20"
+                required
+              />
 
-              <div class="form-control">
-                <label class="label">
-                  <span class="label-text">Max Price</span>
-                </label>
-                <input
-                  type="number"
-                  name="tournament[max_price]"
-                  value={@tournament.max_price}
-                  class="input input-bordered"
-                  min="1"
-                  required
-                />
-              </div>
-            </div>
+              <legend class="fieldset-legend">Max Price</legend>
+              <input
+                type="number"
+                name="tournament[max_price]"
+                value={@tournament.max_price}
+                class="input input-bordered w-full"
+                min="1"
+                required
+              />
 
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Deadline</span>
-              </label>
+              <legend class="fieldset-legend">Deadline</legend>
               <input
                 type="datetime-local"
                 name="tournament[deadline]"
                 value={format_datetime_local(@tournament.deadline)}
-                class="input input-bordered"
+                class="input input-bordered w-full"
                 required
               />
-            </div>
 
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Spreadsheet URL</span>
-              </label>
+              <legend class="fieldset-legend">Spreadsheet URL</legend>
               <input
                 type="url"
                 name="tournament[spreadsheet_url]"
                 value={@tournament.spreadsheet_url}
-                class="input input-bordered"
+                class="input input-bordered w-full"
               />
-            </div>
 
-            <div class="grid md:grid-cols-2 gap-4">
-              <div class="form-control">
-                <label class="label">
-                  <span class="label-text">Team Column Name</span>
-                </label>
-                <input
-                  type="text"
-                  name="tournament[team_column_name]"
-                  value={@tournament.team_column_name}
-                  class="input input-bordered"
-                />
-              </div>
+              <legend class="fieldset-legend">Team Column Name</legend>
+              <input
+                type="text"
+                name="tournament[team_column_name]"
+                value={@tournament.team_column_name}
+                class="input input-bordered w-full"
+              />
 
-              <div class="form-control">
-                <label class="label">
-                  <span class="label-text">Result Column Name</span>
-                </label>
-                <input
-                  type="text"
-                  name="tournament[result_column_name]"
-                  value={@tournament.result_column_name}
-                  class="input input-bordered"
-                />
-              </div>
-            </div>
+              <legend class="fieldset-legend">Result Column Name</legend>
+              <input
+                type="text"
+                name="tournament[result_column_name]"
+                value={@tournament.result_column_name}
+                class="input input-bordered w-full"
+              />
+            </fieldset>
 
-            <div class="form-control mt-4">
+            <div class="mt-4">
               <button type="submit" class="btn btn-primary">Save Tournament</button>
             </div>
           </.form>
@@ -226,78 +220,71 @@ defmodule FantasyWeb.TournamentLive.Edit do
             </button>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th class="text-right">Price</th>
-                  <th class="text-right">Points</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <%= for team <- @teams do %>
-                  <%= if @editing_team_id == team.id do %>
+          <.form for={%{}} phx-submit="save_all_teams" class="space-y-4">
+            <div class="overflow-x-auto">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Points</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <%= for team <- @teams do %>
                     <tr>
-                      <.form for={%{}} phx-submit="save_team" class="contents">
-                        <td>
-                          <input
-                            type="text"
-                            name="team[name]"
-                            value={team.name}
-                            class="input input-bordered input-sm w-full"
-                            required
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            name="team[price]"
-                            value={team.price}
-                            class="input input-bordered input-sm w-20"
-                            min="1"
-                            required
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            name="team[points]"
-                            value={team.points}
-                            class="input input-bordered input-sm w-20"
-                            min="0"
-                          />
-                        </td>
-                        <td class="flex gap-1">
-                          <button type="submit" class="btn btn-success btn-xs">Save</button>
-                          <button type="button" phx-click="cancel_edit_team" class="btn btn-ghost btn-xs">
-                            Cancel
-                          </button>
-                        </td>
-                      </.form>
-                    </tr>
-                  <% else %>
-                    <tr>
-                      <td>{team.name}</td>
-                      <td class="text-right">{team.price}</td>
-                      <td class="text-right">{team.points}</td>
+                      <td>
+                        <input
+                          type="text"
+                          name={"teams[#{team.id}][name]"}
+                          value={team.name}
+                          class="input input-bordered input-sm w-full"
+                          required
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name={"teams[#{team.id}][price]"}
+                          value={team.price}
+                          class="input input-bordered input-sm w-20"
+                          min="1"
+                          required
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name={"teams[#{team.id}][points]"}
+                          value={team.points}
+                          class="input input-bordered input-sm w-20"
+                          min="0"
+                        />
+                      </td>
                       <td>
                         <button
                           type="button"
-                          phx-click="edit_team"
+                          phx-click="delete_team"
                           phx-value-id={team.id}
-                          class="btn btn-ghost btn-xs"
+                          class="btn btn-ghost btn-xs text-error"
                         >
-                          Edit
+                          ✕
                         </button>
                       </td>
                     </tr>
                   <% end %>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="flex gap-2">
+              <button type="button" phx-click="add_team" class="btn btn-outline btn-sm">
+                + Add Team
+              </button>
+              <button type="submit" class="btn btn-primary btn-sm">Save All Teams</button>
+            </div>
+          </.form>
         </div>
       </div>
     </div>

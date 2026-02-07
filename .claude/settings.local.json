@@ -22,7 +22,8 @@
       "Bash(sqlite3:*)",
       "Bash(ls:*)",
       "Bash(cat:*)",
-      "Bash(mix run:*)"
+      "Bash(mix run:*)",
+      "Bash(mix format:*)"
     ],
     "deny": []
   }

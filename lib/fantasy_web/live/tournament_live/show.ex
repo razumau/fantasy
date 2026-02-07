@@ -38,7 +38,9 @@ defmodule FantasyWeb.TournamentLive.Show do
   @impl true
   def handle_event("toggle_team", %{"id" => id_str}, socket) do
     team_id = String.to_integer(id_str)
-    %{tournament: tournament, teams: teams, selected_ids: selected_ids, version: version} = socket.assigns
+
+    %{tournament: tournament, teams: teams, selected_ids: selected_ids, version: version} =
+      socket.assigns
 
     new_selected_ids =
       if MapSet.member?(selected_ids, team_id) do
