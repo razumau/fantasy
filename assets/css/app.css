@@ -28,7 +28,7 @@
   color-scheme: "dark";
   --color-base-100: oklch(30.33% 0.016 252.42);
   --color-base-200: oklch(25.26% 0.014 253.1);
-  --color-base-300: oklch(20.15% 0.012 254.09);
+  --color-base-300: oklch(28% 0.012 254.09);
   --color-base-content: oklch(97.807% 0.029 256.847);
   --color-primary: oklch(58% 0.233 277.117);
   --color-primary-content: oklch(96% 0.018 272.314);
@@ -61,9 +61,9 @@
   default: true;
   prefersdark: false;
   color-scheme: "light";
-  --color-base-100: oklch(98% 0 0);
-  --color-base-200: oklch(96% 0.001 286.375);
-  --color-base-300: oklch(92% 0.004 286.32);
+  --color-base-100: oklch(98.5% 0.002 80);
+  --color-base-200: oklch(95% 0.005 80);
+  --color-base-300: oklch(87% 0.01 80);
   --color-base-content: oklch(21% 0.006 285.885);
   --color-primary: oklch(70% 0.213 47.604);
   --color-primary-content: oklch(98% 0.016 73.684);
@@ -100,6 +100,49 @@
 @custom-variant dark (@media (prefers-color-scheme: dark));
 
 /* Make LiveView wrapper divs transparent for layout */
-[data-phx-session], [data-phx-teleported-src] { display: contents }
+[data-phx-session],
+[data-phx-teleported-src] {
+  display: contents;
+}
 
-/* This file is for your main application CSS */
+.btn:not(.btn-ghost):not(.btn-link) {
+  box-shadow: 0 3px 0 0 oklch(0% 0 0 / 0.2);
+  transition: all 0.15s ease;
+}
+.btn:not(.btn-ghost):not(.btn-link):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 oklch(0% 0 0 / 0.2);
+}
+.btn:not(.btn-ghost):not(.btn-link):active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 0 oklch(0% 0 0 / 0.2);
+}
+
+.card {
+  border: 1px solid oklch(87% 0.01 80);
+  box-shadow: 0 1px 3px oklch(0% 0 0 / 0.06);
+}
+
+.table th,
+.table td {
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.table thead th {
+  border-bottom: 2px solid oklch(87% 0.01 80);
+}
+.table tbody tr {
+  border-bottom: 1px solid oklch(91% 0.005 80);
+}
+
+.navbar {
+  border-bottom: 1px solid oklch(87% 0.01 80);
+}
+
+.stat {
+  border: 1px solid oklch(87% 0.01 80);
+}

@@ -31,7 +31,7 @@ defmodule FantasyWeb.TournamentLive.Results do
 
       <%= if @ideal_pick do %>
         <% {ideal, teams} = @ideal_pick %>
-        <div class="border border-base-300 rounded-lg p-4">
+        <div class="border border-base-300 bg-base-200 rounded-lg p-4">
           <p>
             The maximum possible score was {ideal.points} points. You could get there with these teams:
           </p>
@@ -58,7 +58,7 @@ defmodule FantasyWeb.TournamentLive.Results do
       <%= if Enum.empty?(@results) do %>
         <p class="text-base-content/60">No picks submitted for this tournament.</p>
       <% else %>
-        <div class="overflow-x-auto">
+        <div class="card bg-base-200 overflow-x-auto">
           <table class="table">
             <thead>
               <tr>

@@ -40,7 +40,7 @@ defmodule FantasyWeb.HomeLive do
         <%= if Enum.empty?(@closed_tournaments) do %>
           <p class="text-base-content/60">No past tournaments.</p>
         <% else %>
-          <div class="overflow-x-auto">
+          <div class="card bg-base-200 overflow-x-auto">
             <table class="table">
               <thead>
                 <tr>
