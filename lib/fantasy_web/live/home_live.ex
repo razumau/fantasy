@@ -29,7 +29,7 @@ defmodule FantasyWeb.HomeLive do
         <% else %>
           <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <%= for tournament <- @open_tournaments do %>
-              <.tournament_card tournament={tournament} open={true} />
+              <.tournament_card tournament={tournament} />
             <% end %>
           </div>
         <% end %>
@@ -40,10 +40,33 @@ defmodule FantasyWeb.HomeLive do
         <%= if Enum.empty?(@closed_tournaments) do %>
           <p class="text-base-content/60">No past tournaments.</p>
         <% else %>
-          <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <%= for tournament <- @closed_tournaments do %>
-              <.tournament_card tournament={tournament} open={false} />
-            <% end %>
+          <div class="overflow-x-auto">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Tournament</th>
+                  <th>Ended</th>
+                  <th>Teams</th>
+                  <th>Budget</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <%= for tournament <- @closed_tournaments do %>
+                  <tr>
+                    <td class="font-medium">{tournament.title}</td>
+                    <td class="text-sm text-base-content/60">{format_deadline(tournament.deadline)}</td>
+                    <td>{tournament.max_teams}</td>
+                    <td>{tournament.max_price}</td>
+                    <td>
+                      <.link navigate={~p"/tournaments/#{tournament.slug}/results"} class="link link-hover text-sm">
+                        Results
+                      </.link>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
           </div>
         <% end %>
       </section>
@@ -57,28 +80,15 @@ defmodule FantasyWeb.HomeLive do
       <div class="card-body">
         <h3 class="card-title">{@tournament.title}</h3>
         <p class="text-sm text-base-content/60">
-          <%= if @open do %>
-            Deadline: {format_deadline(@tournament.deadline)}
-          <% else %>
-            Ended: {format_deadline(@tournament.deadline)}
-          <% end %>
+          Deadline: {format_deadline(@tournament.deadline)}
         </p>
         <p class="text-sm">
           Max teams: {@tournament.max_teams} | Budget: {@tournament.max_price}
         </p>
         <div class="card-actions justify-end mt-2">
-          <%= if @open do %>
-            <.link navigate={~p"/tournaments/#{@tournament.slug}"} class="btn btn-primary btn-sm">
-              Pick Teams
-            </.link>
-          <% else %>
-            <.link navigate={~p"/tournaments/#{@tournament.slug}/results"} class="btn btn-ghost btn-sm">
-              Results
-            </.link>
-            <.link navigate={~p"/tournaments/#{@tournament.slug}/popular"} class="btn btn-ghost btn-sm">
-              Popular
-            </.link>
-          <% end %>
+          <.link navigate={~p"/tournaments/#{@tournament.slug}"} class="btn btn-primary btn-sm">
+            Pick Teams
+          </.link>
         </div>
       </div>
     </div>

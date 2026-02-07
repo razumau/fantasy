@@ -57,9 +57,9 @@ defmodule FantasyWeb.Layouts do
       </div>
     </header>
 
-    <main class="px-4 py-8 sm:px-6 lg:px-8">
+    <main class="px-6 py-8 sm:px-10 lg:px-16">
       <div class="mx-auto max-w-6xl">
-        {render_slot(@inner_block)}
+        {@inner_content}
       </div>
     </main>
 
