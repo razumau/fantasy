@@ -38,7 +38,7 @@ defmodule Fantasy.Results do
   defp add_rankings(results) do
     results
     |> Enum.with_index(1)
-    |> Enum.reduce({[], nil, 0}, fn {{result, index}, {acc, prev_points, prev_rank}}, _ ->
+    |> Enum.reduce({[], nil, 0}, fn {result, index}, {acc, prev_points, prev_rank} ->
       rank =
         if result.total_points == prev_points do
           prev_rank
