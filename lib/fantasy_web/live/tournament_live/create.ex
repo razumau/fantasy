@@ -15,6 +15,7 @@ defmodule FantasyWeb.TournamentLive.Create do
      assign(socket,
        page_title: "Create Tournament",
        changeset: changeset,
+       deadline_str: "",
        teams_text: ""
      )}
   end
@@ -28,9 +29,10 @@ defmodule FantasyWeb.TournamentLive.Create do
       |> Tournament.create_changeset(tournament_params)
       |> Map.put(:action, :validate)
 
+    deadline_str = get_in(params, ["tournament", "deadline"]) || socket.assigns.deadline_str
     teams_text = Map.get(params, "teams_text", socket.assigns.teams_text)
 
-    {:noreply, assign(socket, changeset: changeset, teams_text: teams_text)}
+    {:noreply, assign(socket, changeset: changeset, deadline_str: deadline_str, teams_text: teams_text)}
   end
 
   @impl true
@@ -148,7 +150,7 @@ defmodule FantasyWeb.TournamentLive.Create do
               <input
                 type="datetime-local"
                 name="tournament[deadline]"
-                value={@changeset.changes[:deadline]}
+                value={@deadline_str}
                 class="input input-bordered w-full"
                 required
               />

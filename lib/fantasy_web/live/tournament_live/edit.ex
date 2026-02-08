@@ -19,7 +19,8 @@ defmodule FantasyWeb.TournamentLive.Edit do
        page_title: "Edit #{tournament.title}",
        tournament: tournament,
        teams: teams,
-       changeset: changeset
+       changeset: changeset,
+       deadline_str: format_datetime_local(tournament.deadline)
      )}
   end
 
@@ -30,7 +31,9 @@ defmodule FantasyWeb.TournamentLive.Edit do
       |> Tournament.update_changeset(params)
       |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, changeset: changeset)}
+    deadline_str = params["deadline"] || socket.assigns.deadline_str
+
+    {:noreply, assign(socket, changeset: changeset, deadline_str: deadline_str)}
   end
 
   @impl true
@@ -188,7 +191,7 @@ defmodule FantasyWeb.TournamentLive.Edit do
               <input
                 type="datetime-local"
                 name="tournament[deadline]"
-                value={format_datetime_local(@tournament.deadline)}
+                value={@deadline_str}
                 class="input input-bordered w-full"
                 required
               />
