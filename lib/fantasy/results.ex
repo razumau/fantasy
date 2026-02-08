@@ -19,20 +19,29 @@ defmodule Fantasy.Results do
     all_teams = Tournaments.list_teams_for_tournament(tournament_id)
     teams_by_id = Map.new(all_teams, &{&1.id, &1})
 
-    picks
-    |> Enum.map(fn pick ->
-      team_ids = Pick.get_team_ids(pick)
-      teams = Enum.map(team_ids, &Map.get(teams_by_id, &1)) |> Enum.reject(&is_nil/1)
-      total_points = Enum.sum(Enum.map(teams, & &1.points))
+    results =
+      picks
+      |> Enum.map(fn pick ->
+        team_ids = Pick.get_team_ids(pick)
+        teams = Enum.map(team_ids, &Map.get(teams_by_id, &1)) |> Enum.reject(&is_nil/1)
+        total_points = Enum.sum(Enum.map(teams, & &1.points))
 
-      %{
-        user: pick.user,
-        teams: teams,
-        total_points: total_points
-      }
-    end)
-    |> Enum.sort_by(& &1.total_points, :desc)
-    |> add_rankings()
+        %{
+          user: pick.user,
+          teams: teams,
+          total_points: total_points
+        }
+      end)
+
+    if Enum.any?(results, &(&1.total_points != 0)) do
+      results
+      |> Enum.sort_by(&{-&1.total_points, &1.user.name})
+      |> add_rankings()
+    else
+      results
+      |> Enum.shuffle()
+      |> Enum.map(&Map.put(&1, :rank, 1))
+    end
   end
 
   defp add_rankings(results) do
