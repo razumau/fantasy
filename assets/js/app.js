@@ -25,11 +25,50 @@ import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/fantasy"
 import topbar from "../vendor/topbar"
 
+const Hooks = {
+  LocalTime: {
+    mounted() { this.formatTime(); },
+    updated() { this.formatTime(); },
+    formatTime() {
+      const dt = new Date(this.el.dateTime);
+      if (isNaN(dt)) return;
+      const fmt = this.el.dataset.format;
+      if (fmt === "date") {
+        this.el.textContent = dt.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      } else if (fmt === "time-date") {
+        const time = dt.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+        const date = dt.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' });
+        this.el.textContent = `${time} on ${date}`;
+      } else {
+        this.el.textContent = dt.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      }
+    }
+  },
+  TimezoneOffset: {
+    mounted() {
+      const form = this.el.closest("form");
+      const dtInput = form.querySelector("input[type='datetime-local']");
+      const update = () => {
+        if (dtInput && dtInput.value) {
+          this.el.value = new Date(dtInput.value).getTimezoneOffset();
+        } else {
+          this.el.value = new Date().getTimezoneOffset();
+        }
+      };
+      if (dtInput) {
+        dtInput.addEventListener("input", update);
+        dtInput.addEventListener("change", update);
+      }
+      update();
+    }
+  }
+};
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks},
+  params: {_csrf_token: csrfToken, timezone_offset: new Date().getTimezoneOffset()},
+  hooks: {...colocatedHooks, ...Hooks},
 })
 
 // Show progress bar on live navigation and form submits

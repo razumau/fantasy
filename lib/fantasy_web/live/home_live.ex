@@ -76,7 +76,12 @@ defmodule FantasyWeb.HomeLive do
                     </td>
                     <td>{tournament.player_count}</td>
                     <td class="text-sm text-base-content/60">
-                      {format_date(tournament.deadline)}
+                      <time
+                        id={"date-#{tournament.id}"}
+                        phx-hook="LocalTime"
+                        data-format="date"
+                        datetime={DateTime.to_iso8601(tournament.deadline)}
+                      >{format_date(tournament.deadline)}</time>
                     </td>
                   </tr>
                 <% end %>
@@ -95,7 +100,11 @@ defmodule FantasyWeb.HomeLive do
       <div class="card-body">
         <h3 class="card-title">{@tournament.title}</h3>
         <p class="text-sm text-base-content/60">
-          Deadline: {format_deadline(@tournament.deadline)}
+          Deadline: <time
+            id={"deadline-#{@tournament.id}"}
+            phx-hook="LocalTime"
+            datetime={DateTime.to_iso8601(@tournament.deadline)}
+          >{format_deadline(@tournament.deadline)}</time>
         </p>
         <p class="text-sm">
           Max teams: {@tournament.max_teams} | Budget: {@tournament.max_price}

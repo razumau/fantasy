@@ -57,6 +57,20 @@ defmodule FantasyWeb.TournamentLive.Create do
     end
   end
 
+  defp convert_deadline(
+         %{"deadline" => deadline_str, "deadline_offset" => offset_str} = params
+       )
+       when is_binary(deadline_str) and deadline_str != "" do
+    with {offset_minutes, _} <- Integer.parse(offset_str),
+         {:ok, naive} <- NaiveDateTime.from_iso8601(deadline_str <> ":00") do
+      utc_naive = NaiveDateTime.add(naive, offset_minutes * 60, :second)
+      {:ok, dt} = DateTime.from_naive(utc_naive, "Etc/UTC")
+      Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
+    else
+      _ -> params
+    end
+  end
+
   defp convert_deadline(%{"deadline" => deadline_str} = params) when is_binary(deadline_str) do
     case DateTime.from_iso8601(deadline_str <> ":00Z") do
       {:ok, dt, _} -> Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
@@ -153,6 +167,12 @@ defmodule FantasyWeb.TournamentLive.Create do
                 value={@deadline_str}
                 class="input input-bordered w-full"
                 required
+              />
+              <input
+                type="hidden"
+                name="tournament[deadline_offset]"
+                id="deadline-offset"
+                phx-hook="TimezoneOffset"
               />
 
               <legend class="fieldset-legend">Spreadsheet URL (optional)</legend>

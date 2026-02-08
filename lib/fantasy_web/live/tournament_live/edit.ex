@@ -14,13 +14,16 @@ defmodule FantasyWeb.TournamentLive.Edit do
     teams = Tournaments.list_teams_for_tournament(tournament.id)
     changeset = Tournament.update_changeset(tournament, %{})
 
+    tz_offset =
+      if connected?(socket), do: get_connect_params(socket)["timezone_offset"] || 0, else: 0
+
     {:ok,
      assign(socket,
        page_title: "Edit #{tournament.title}",
        tournament: tournament,
        teams: teams,
        changeset: changeset,
-       deadline_str: format_datetime_local(tournament.deadline)
+       deadline_str: format_datetime_local(tournament.deadline, tz_offset)
      )}
   end
 
@@ -131,6 +134,20 @@ defmodule FantasyWeb.TournamentLive.Edit do
     end
   end
 
+  defp convert_deadline(
+         %{"deadline" => deadline_str, "deadline_offset" => offset_str} = params
+       )
+       when is_binary(deadline_str) and deadline_str != "" do
+    with {offset_minutes, _} <- Integer.parse(offset_str),
+         {:ok, naive} <- NaiveDateTime.from_iso8601(deadline_str <> ":00") do
+      utc_naive = NaiveDateTime.add(naive, offset_minutes * 60, :second)
+      {:ok, dt} = DateTime.from_naive(utc_naive, "Etc/UTC")
+      Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
+    else
+      _ -> params
+    end
+  end
+
   defp convert_deadline(%{"deadline" => deadline_str} = params) when is_binary(deadline_str) do
     case DateTime.from_iso8601(deadline_str <> ":00Z") do
       {:ok, dt, _} -> Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
@@ -194,6 +211,12 @@ defmodule FantasyWeb.TournamentLive.Edit do
                 value={@deadline_str}
                 class="input input-bordered w-full"
                 required
+              />
+              <input
+                type="hidden"
+                name="tournament[deadline_offset]"
+                id="deadline-offset"
+                phx-hook="TimezoneOffset"
               />
 
               <legend class="fieldset-legend">Spreadsheet URL</legend>
@@ -325,9 +348,11 @@ defmodule FantasyWeb.TournamentLive.Edit do
     """
   end
 
-  defp format_datetime_local(datetime) when is_struct(datetime, DateTime) do
-    Calendar.strftime(datetime, "%Y-%m-%dT%H:%M")
+  defp format_datetime_local(datetime, offset_minutes) when is_struct(datetime, DateTime) do
+    datetime
+    |> DateTime.add(-offset_minutes * 60, :second)
+    |> Calendar.strftime("%Y-%m-%dT%H:%M")
   end
 
-  defp format_datetime_local(_), do: ""
+  defp format_datetime_local(_, _), do: ""
 end
