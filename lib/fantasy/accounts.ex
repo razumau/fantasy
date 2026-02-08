@@ -36,15 +36,13 @@ defmodule Fantasy.Accounts do
   def get_user_by_google_id(_), do: nil
 
   @doc """
-  Gets a user by their name (email).
-
-  Used for matching existing users during migration from Clerk.
+  Gets a user by their email address.
   """
-  def get_user_by_name(name) when is_binary(name) do
-    Repo.get_by(User, name: name)
+  def get_user_by_email(email) when is_binary(email) do
+    Repo.get_by(User, email: email)
   end
 
-  def get_user_by_name(_), do: nil
+  def get_user_by_email(_), do: nil
 
   @doc """
   Finds or creates a user from Google OAuth data.
@@ -61,21 +59,21 @@ defmodule Fantasy.Accounts do
     - {:ok, user} on success
     - {:error, changeset} on failure
   """
-  def find_or_create_user(%{sub: google_id, email: email} = _google_user) do
+  def find_or_create_user(%{sub: google_id, email: email, name: name} = _google_user) do
     case get_user_by_google_id(google_id) do
       %User{} = user ->
         {:ok, user}
 
       nil ->
         # Try to find existing user by email (for migration from Clerk)
-        case get_user_by_name(email) do
+        case get_user_by_email(email) do
           %User{} = user ->
-            # Link Google ID to existing user
-            link_google_id(user, google_id)
+            # Link Google ID to existing user, update name and email
+            link_google_id(user, google_id, name, email)
 
           nil ->
             # Create new user
-            create_user(%{google_id: google_id, name: email})
+            create_user(%{google_id: google_id, name: name, email: email})
         end
     end
   end
@@ -96,13 +94,13 @@ defmodule Fantasy.Accounts do
   end
 
   @doc """
-  Links a Google ID to an existing user.
+  Links a Google ID to an existing user, updating name and email.
   """
-  def link_google_id(%User{} = user, google_id) do
+  def link_google_id(%User{} = user, google_id, name, email) do
     now = DateTime.utc_now()
 
     user
-    |> User.link_google_changeset(%{google_id: google_id})
+    |> User.link_google_changeset(%{google_id: google_id, name: name, email: email})
     |> Ecto.Changeset.put_change(:updated_at, now)
     |> Repo.update()
   end
