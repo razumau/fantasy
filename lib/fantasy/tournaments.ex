@@ -267,6 +267,15 @@ defmodule Fantasy.Tournaments do
   end
 
   @doc """
+  Counts the number of picks for a tournament.
+  """
+  def count_picks_for_tournament(tournament_id) do
+    Pick
+    |> where([p], p.tournamentId == ^tournament_id)
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
   Gets all picks for a tournament.
   """
   def list_picks_for_tournament(tournament_id) do

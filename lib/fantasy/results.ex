@@ -53,6 +53,18 @@ defmodule Fantasy.Results do
   end
 
   @doc """
+  Gets the winners (rank 1 players) for a tournament.
+
+  Returns a list of user names.
+  """
+  def get_tournament_winners(tournament_id) do
+    tournament_id
+    |> get_tournament_results()
+    |> Enum.filter(&(&1.rank == 1))
+    |> Enum.map(& &1.user.name)
+  end
+
+  @doc """
   Gets the ideal pick for a tournament.
 
   Returns nil if no ideal pick has been calculated.
