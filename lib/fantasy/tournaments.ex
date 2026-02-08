@@ -46,6 +46,7 @@ defmodule Fantasy.Tournaments do
 
     Tournament
     |> where([t], t.deadline > ^now)
+    |> exclude_test_tournaments()
     |> order_by([t], asc: t.deadline)
     |> Repo.all()
   end
@@ -58,6 +59,7 @@ defmodule Fantasy.Tournaments do
 
     Tournament
     |> where([t], t.deadline <= ^now)
+    |> exclude_test_tournaments()
     |> order_by([t], desc: t.deadline)
     |> Repo.all()
   end
@@ -96,6 +98,10 @@ defmodule Fantasy.Tournaments do
     |> Ecto.Multi.delete_all(:teams, from(t in Team, where: t.tournamentId == ^tournament.id))
     |> Ecto.Multi.delete(:tournament, tournament)
     |> Repo.transaction()
+  end
+
+  defp exclude_test_tournaments(query) do
+    where(query, [t], not like(t.slug, "test%"))
   end
 
   # ============================================================================
