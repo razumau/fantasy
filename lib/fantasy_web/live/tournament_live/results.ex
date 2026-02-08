@@ -53,6 +53,16 @@ defmodule FantasyWeb.TournamentLive.Results do
             What are the most popular teams?
           </.link>
         </p>
+        <%= if @current_user && @current_user.is_admin do %>
+          <p>
+            <.link
+              navigate={~p"/tournaments/#{@tournament.slug}/edit"}
+              class="link link-primary"
+            >
+              Edit this tournament
+            </.link>
+          </p>
+        <% end %>
       </div>
 
       <%= if Enum.empty?(@results) do %>

@@ -31,7 +31,14 @@ defmodule FantasyWeb.HomeLive do
     ~H"""
     <div class="space-y-8">
       <section>
-        <h2 class="text-2xl font-bold mb-4">Open Tournaments</h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold">Open Tournaments</h2>
+          <%= if @current_user && @current_user.is_admin do %>
+            <.link navigate={~p"/tournaments/create"} class="btn btn-primary btn-sm">
+              Create Tournament
+            </.link>
+          <% end %>
+        </div>
         <%= if Enum.empty?(@open_tournaments) do %>
           <p class="text-base-content/60">No open tournaments at the moment.</p>
         <% else %>

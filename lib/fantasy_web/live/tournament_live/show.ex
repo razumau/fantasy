@@ -177,14 +177,16 @@ defmodule FantasyWeb.TournamentLive.Show do
               </p>
               <p>
                 <%= if @is_open do %>
-                  You can change your picks until <time
+                  You can change your picks until
+                  <time
                     id="deadline"
                     phx-hook="LocalTime"
                     data-format="time-date"
                     datetime={DateTime.to_iso8601(@tournament.deadline)}
-                  >{format_deadline(@tournament.deadline)}</time> ({time_until_deadline(
-                    @tournament.deadline
-                  )} left).
+                  >
+                    {format_deadline(@tournament.deadline)}
+                  </time>
+                  ({time_until_deadline(@tournament.deadline)} left).
                 <% else %>
                   Tournament is closed.
                 <% end %>
@@ -248,6 +250,16 @@ defmodule FantasyWeb.TournamentLive.Show do
                   What are the most popular teams?
                 </.link>
               </p>
+              <%= if @current_user && @current_user.is_admin do %>
+                <p>
+                  <.link
+                    navigate={~p"/tournaments/#{@tournament.slug}/edit"}
+                    class="link link-primary"
+                  >
+                    Edit this tournament
+                  </.link>
+                </p>
+              <% end %>
             </div>
           </div>
         </div>
