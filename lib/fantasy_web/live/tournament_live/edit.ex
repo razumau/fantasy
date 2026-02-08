@@ -104,6 +104,20 @@ defmodule FantasyWeb.TournamentLive.Edit do
   end
 
   @impl true
+  def handle_event("delete_tournament", _, socket) do
+    case Tournaments.delete_tournament(socket.assigns.tournament) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Tournament deleted.")
+         |> push_navigate(to: ~p"/")}
+
+      {:error, _, _, _} ->
+        {:noreply, put_flash(socket, :error, "Failed to delete tournament.")}
+    end
+  end
+
+  @impl true
   def handle_event("calculate_ideal", _, socket) do
     case Results.update_ideal_pick(socket.assigns.tournament.id) do
       {:ok, ideal} ->
@@ -285,6 +299,23 @@ defmodule FantasyWeb.TournamentLive.Edit do
               <button type="submit" class="btn btn-primary btn-sm">Save All Teams</button>
             </div>
           </.form>
+        </div>
+      </div>
+
+      <div class="card bg-base-200">
+        <div class="card-body">
+          <h2 class="card-title text-error">Danger Zone</h2>
+          <p class="text-sm">Deleting a tournament will permanently remove it along with all its teams, picks, and results.</p>
+          <div class="mt-2">
+            <button
+              type="button"
+              phx-click="delete_tournament"
+              data-confirm="Are you sure you want to delete this tournament? This action cannot be undone."
+              class="btn btn-error btn-sm"
+            >
+              Delete Tournament
+            </button>
+          </div>
         </div>
       </div>
     </div>

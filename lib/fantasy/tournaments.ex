@@ -87,6 +87,17 @@ defmodule Fantasy.Tournaments do
     |> Repo.update()
   end
 
+  def delete_tournament(%Tournament{} = tournament) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.delete_all(:picks, from(p in Pick, where: p.tournamentId == ^tournament.id))
+    |> Ecto.Multi.delete_all(:ideal_pick,
+      from(ip in Fantasy.Tournaments.IdealPick, where: ip.tournamentId == ^tournament.id)
+    )
+    |> Ecto.Multi.delete_all(:teams, from(t in Team, where: t.tournamentId == ^tournament.id))
+    |> Ecto.Multi.delete(:tournament, tournament)
+    |> Repo.transaction()
+  end
+
   # ============================================================================
   # Team Functions
   # ============================================================================
