@@ -134,9 +134,7 @@ defmodule FantasyWeb.TournamentLive.Edit do
     end
   end
 
-  defp convert_deadline(
-         %{"deadline" => deadline_str, "deadline_offset" => offset_str} = params
-       )
+  defp convert_deadline(%{"deadline" => deadline_str, "deadline_offset" => offset_str} = params)
        when is_binary(deadline_str) and deadline_str != "" do
     with {offset_minutes, _} <- Integer.parse(offset_str),
          {:ok, naive} <- NaiveDateTime.from_iso8601(deadline_str <> ":00") do
@@ -331,7 +329,9 @@ defmodule FantasyWeb.TournamentLive.Edit do
       <div class="card bg-base-200">
         <div class="card-body">
           <h2 class="card-title text-error">Danger Zone</h2>
-          <p class="text-sm">Deleting a tournament will permanently remove it along with all its teams, picks, and results.</p>
+          <p class="text-sm">
+            Deleting a tournament will permanently remove it along with all its teams, picks, and results.
+          </p>
           <div class="mt-2">
             <button
               type="button"

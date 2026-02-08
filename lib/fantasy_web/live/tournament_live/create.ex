@@ -32,7 +32,8 @@ defmodule FantasyWeb.TournamentLive.Create do
     deadline_str = get_in(params, ["tournament", "deadline"]) || socket.assigns.deadline_str
     teams_text = Map.get(params, "teams_text", socket.assigns.teams_text)
 
-    {:noreply, assign(socket, changeset: changeset, deadline_str: deadline_str, teams_text: teams_text)}
+    {:noreply,
+     assign(socket, changeset: changeset, deadline_str: deadline_str, teams_text: teams_text)}
   end
 
   @impl true
@@ -57,9 +58,7 @@ defmodule FantasyWeb.TournamentLive.Create do
     end
   end
 
-  defp convert_deadline(
-         %{"deadline" => deadline_str, "deadline_offset" => offset_str} = params
-       )
+  defp convert_deadline(%{"deadline" => deadline_str, "deadline_offset" => offset_str} = params)
        when is_binary(deadline_str) and deadline_str != "" do
     with {offset_minutes, _} <- Integer.parse(offset_str),
          {:ok, naive} <- NaiveDateTime.from_iso8601(deadline_str <> ":00") do
@@ -196,7 +195,7 @@ defmodule FantasyWeb.TournamentLive.Create do
               <textarea
                 name="teams_text"
                 class="textarea textarea-bordered h-48 w-full font-mono"
-                placeholder={"Team Name 25\nAnother Team 30\nThird Team 15"}
+                placeholder="Team Name 25\nAnother Team 30\nThird Team 15"
               >{@teams_text}</textarea>
               <span class="fieldset-label">
                 One team per line: "Team Name 50" (name and price separated by the last space)
