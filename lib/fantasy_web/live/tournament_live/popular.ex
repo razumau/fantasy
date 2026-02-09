@@ -13,7 +13,7 @@ defmodule FantasyWeb.TournamentLive.Popular do
 
     {:ok,
      assign(socket,
-       page_title: "#{tournament.title} - Popular Picks",
+       page_title: "#{tournament.title} — Popular Picks",
        tournament: tournament,
        popular_teams: popular_teams,
        total_picks: total_picks

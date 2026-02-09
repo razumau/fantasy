@@ -14,7 +14,7 @@ defmodule FantasyWeb.TournamentLive.Results do
 
     {:ok,
      assign(socket,
-       page_title: "#{tournament.title} - Results",
+       page_title: "#{tournament.title} — Results",
        tournament: tournament,
        results: results,
        ideal_pick: ideal_pick
