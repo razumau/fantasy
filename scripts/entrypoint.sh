@@ -11,7 +11,7 @@ echo "Starting entrypoint script..."
 # Restore database from litestream backup if it exists in S3
 # -if-replica-exists: only restore if a backup exists, otherwise start fresh
 echo "Restoring database from litestream backup..."
-litestream restore -if-replica-exists -config /etc/litestream.yml /data/sqlite.db
+litestream restore -if-replica-exists -if-db-not-exists -config /etc/litestream.yml /data/sqlite.db
 
 # Run Ecto migrations
 # The release includes a migrate script via rel/overlays
