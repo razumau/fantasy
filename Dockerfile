@@ -2,13 +2,13 @@
 
 # Find eligible builder and runner images at https://hub.docker.com/r/hexpm/elixir
 ARG ELIXIR_VERSION=1.18.3
-ARG OTP_VERSION=27.3
-ARG DEBIAN_VERSION=bookworm-20250428-slim
+ARG OTP_VERSION=27.3.3
+ARG DEBIAN_VERSION=bookworm-20250407-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 # Install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
@@ -37,11 +37,11 @@ COPY priv priv
 COPY lib lib
 COPY assets assets
 
+# Compile the app first (generates colocated LiveView hooks needed by esbuild)
+RUN mix compile
+
 # Compile assets
 RUN mix assets.deploy
-
-# Compile the release
-RUN mix compile
 
 # Copy runtime config
 COPY config/runtime.exs config/
@@ -66,9 +66,9 @@ RUN curl -L https://github.com/benbjohnson/litestream/releases/download/v${LITES
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG="en_US.UTF-8"
+ENV LANGUAGE="en_US:en"
+ENV LC_ALL="en_US.UTF-8"
 
 WORKDIR /app
 
