@@ -10,6 +10,9 @@ defmodule Fantasy.ImportEmails do
   alias Fantasy.Repo
 
   def run do
+    {:ok, _} = Application.ensure_all_started(:ecto_sql)
+    {:ok, _} = Repo.start_link()
+
     csv_path =
       Application.app_dir(:fantasy, "priv/repo/users.csv")
 
@@ -25,14 +28,20 @@ defmodule Fantasy.ImportEmails do
       |> Enum.map(&parse_row/1)
       |> Enum.reject(fn {clerk_id, email} -> clerk_id == "" or email == "" end)
       |> Enum.count(fn {clerk_id, email} ->
-        {count, _} =
-          Repo.query!(
-            ~s(UPDATE "User" SET email = ?1 WHERE "clerkId" = ?2 AND email IS NULL),
-            [email, clerk_id]
-          )
-          |> then(fn %{num_rows: n} -> {n, nil} end)
+        case Repo.query(
+               ~s(UPDATE "User" SET email = ?1 WHERE "clerkId" = ?2 AND email IS NULL),
+               [email, clerk_id]
+             ) do
+          {:ok, %{num_rows: n}} when n > 0 ->
+            true
 
-        count > 0
+          {:ok, _} ->
+            false
+
+          {:error, error} ->
+            IO.puts("FAILED clerk_id=#{clerk_id} email=#{email}: #{inspect(error)}")
+            false
+        end
       end)
 
     IO.puts("Updated #{updated} users with email addresses")
