@@ -61,6 +61,12 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  # Google OAuth configuration (env vars only available at runtime, not compile time)
+  config :elixir_auth_google,
+    client_id: System.get_env("GOOGLE_CLIENT_ID"),
+    client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
+    redirect_uri: System.get_env("GOOGLE_REDIRECT_URI")
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

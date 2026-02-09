@@ -10,7 +10,7 @@ defmodule FantasyWeb.AuthController do
     # Store the return path if provided
     return_to = params["return_to"] || "/"
 
-    oauth_google_url = ElixirAuthGoogle.generate_oauth_url(conn)
+    oauth_google_url = ElixirAuthGoogle.generate_oauth_url(FantasyWeb.Endpoint.url())
 
     conn
     |> put_session(:return_to, return_to)
@@ -23,7 +23,7 @@ defmodule FantasyWeb.AuthController do
   Fetches user profile data and finds or creates the user in our database.
   """
   def callback(conn, %{"code" => code}) do
-    {:ok, token} = ElixirAuthGoogle.get_token(code, conn)
+    {:ok, token} = ElixirAuthGoogle.get_token(code, FantasyWeb.Endpoint.url())
     {:ok, profile} = ElixirAuthGoogle.get_user_profile(token.access_token)
 
     case Accounts.find_or_create_user(profile) do

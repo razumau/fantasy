@@ -10,11 +10,5 @@ config :fantasy, FantasyWeb.Endpoint, cache_static_manifest: "priv/static/cache_
 # Do not print debug messages in production
 config :logger, level: :info
 
-# Google OAuth configuration (for all environments)
-config :elixir_auth_google,
-  client_id: System.get_env("GOOGLE_CLIENT_ID"),
-  client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
-  redirect_uri: System.get_env("GOOGLE_REDIRECT_URI")
-
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
