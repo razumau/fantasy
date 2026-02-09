@@ -1,64 +1,96 @@
 # syntax = docker/dockerfile:1
 
-FROM oven/bun:1.3.4 AS base
+# Find eligible builder and runner images at https://hub.docker.com/r/hexpm/elixir
+ARG ELIXIR_VERSION=1.18.3
+ARG OTP_VERSION=27.3
+ARG DEBIAN_VERSION=bookworm-20250428-slim
 
-# Next.js/Prisma app lives here
+ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
+ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
+
+FROM ${BUILDER_IMAGE} as builder
+
+# Install build dependencies
+RUN apt-get update -y && apt-get install -y build-essential git \
+    && apt-get clean && rm -f /var/lib/apt/lists/*_*
+
+# Prepare build dir
 WORKDIR /app
 
-# Set production environment
-ENV NEXT_TELEMETRY_DISABLED="1" \
-    NODE_ENV="production" \
-    DATABASE_URL="file:/data/sqlite.db"
+# Install hex + rebar
+RUN mix local.hex --force && \
+    mix local.rebar --force
 
-# Throw-away build stage to reduce size of final image
-FROM base AS build
+# Set build ENV
+ENV MIX_ENV="prod"
 
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential openssl pkg-config
+# Install mix dependencies
+COPY mix.exs mix.lock ./
+RUN mix deps.get --only $MIX_ENV
+RUN mkdir config
 
-# Install node modules
-COPY --link package.json bun.lock ./
-RUN bun install --frozen-lockfile
+# Copy compile-time config files
+COPY config/config.exs config/${MIX_ENV}.exs config/
+RUN mix deps.compile
 
-# Generate Prisma Client
-COPY --link prisma .
-RUN bunx prisma generate
+COPY priv priv
+COPY lib lib
+COPY assets assets
 
-# Copy application code
-COPY --link . .
+# Compile assets
+RUN mix assets.deploy
 
-# Build argument for Clerk publishable key (required at build time for Next.js)
-ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+# Compile the release
+RUN mix compile
 
-# Build application
-RUN bun run build
+# Copy runtime config
+COPY config/runtime.exs config/
 
-# Remove development dependencies
-RUN bun install --production --frozen-lockfile
+# Build release
+COPY rel rel
+RUN mix release
 
+# Start a new build stage for the final image
+FROM ${RUNNER_IMAGE}
 
-# Final stage for app image
-FROM base
+RUN apt-get update -y && \
+    apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates curl sqlite3 \
+    && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
-# Install packages needed for deployment
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y openssl ca-certificates fuse3 sqlite3 curl && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
+# Install litestream for SQLite replication
 ARG LITESTREAM_VERSION=0.3.13
-RUN curl https://github.com/benbjohnson/litestream/releases/download/v0.3.13/litestream-v${LITESTREAM_VERSION}-linux-amd64.deb -O -L
-RUN dpkg -i litestream-v${LITESTREAM_VERSION}-linux-amd64.deb
+RUN curl -L https://github.com/benbjohnson/litestream/releases/download/v${LITESTREAM_VERSION}/litestream-v${LITESTREAM_VERSION}-linux-amd64.deb -o /tmp/litestream.deb \
+    && dpkg -i /tmp/litestream.deb \
+    && rm /tmp/litestream.deb
 
-# Copy built application
-COPY --from=build /app /app
-COPY --from=build /app/litestream.yml /etc/litestream.yml
+# Set the locale
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-# Setup sqlite3 on a separate volume
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+WORKDIR /app
+
+# Set runner ENV
+ENV MIX_ENV="prod"
+
+# Create data directory for SQLite
 RUN mkdir -p /data
-VOLUME /data
 
-RUN chmod +x scripts/entrypoint.sh
-EXPOSE 3000
-ENTRYPOINT ["scripts/entrypoint.sh"]
+# Only copy the final release from the build stage
+COPY --from=builder /app/_build/${MIX_ENV}/rel/fantasy ./
+
+# Copy litestream config and entrypoint
+COPY litestream.yml /etc/litestream.yml
+COPY scripts/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Run as non-root user for security
+RUN useradd --create-home app
+RUN chown -R app:app /app /data
+USER app
+
+EXPOSE 4001
+
+ENTRYPOINT ["/app/entrypoint.sh"]

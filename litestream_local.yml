@@ -1,0 +1,13 @@
+access-key-id: tid_USkQNannIDcDWUBhSViDJpCFEAVnnCfStzTeoiuxvFpZfaMJnF
+secret-access-key: tsec_LVPV9ZRUnpcAtJ_BFuDpK_vYICS2HeBjPrsYGLDYWxKTKGxPQjwjvyoRMXzTYR-+EzLXDg
+exec: echo "Done"
+logging:
+  level: info
+  type: text
+  stderr: false
+dbs:
+  - path: sqlite.db
+    replicas:
+      - type: s3
+        endpoint: https://fly.storage.tigris.dev
+        bucket: fantasy-db
