@@ -144,7 +144,7 @@ defmodule FantasyWeb.TournamentLive.Show do
               </thead>
               <tbody>
                 <%= for team <- @teams do %>
-                  <tr class={if MapSet.member?(@selected_ids, team.id), do: "bg-primary/10"}>
+                  <tr class={if MapSet.member?(@selected_ids, team.id), do: "!bg-primary/10"}>
                     <td>
                       <input
                         type="checkbox"
