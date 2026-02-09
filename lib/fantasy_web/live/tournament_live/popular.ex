@@ -33,9 +33,6 @@ defmodule FantasyWeb.TournamentLive.Popular do
           <.link navigate={~p"/tournaments/#{@tournament.slug}/results"} class="btn btn-ghost btn-sm">
             Results
           </.link>
-          <.link navigate={~p"/tournaments/#{@tournament.slug}/stats"} class="btn btn-ghost btn-sm">
-            Stats
-          </.link>
         </div>
       </div>
 
