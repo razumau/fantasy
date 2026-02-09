@@ -1,0 +1,51 @@
+# Dependencies and build artifacts (rebuilt in Docker)
+deps/
+_build/
+cover/
+doc/
+tmp/
+*.ez
+fantasy-*.tar
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Git
+.git/
+.gitignore
+
+# Environment and secrets
+.env
+.env.local
+.env.example
+config/*.secret.exs
+
+# Docker/deploy config
+.dockerignore
+Dockerfile
+fly.toml
+litestream_local.yml
+
+# IDE and editor
+.idea/
+.elixir_ls/
+.DS_Store
+
+# Claude/AI
+.claude/
+CLAUDE.md
+AGENTS.md
+
+# Docs
+README.md
+LICENSE
+elixir_migration.md
+
+# Misc
+.formatter.exs
+erl_crash.dump
+npm-debug.log
+assets/node_modules/
+test/
