@@ -33,6 +33,7 @@ defmodule FantasyWeb.AuthController do
         conn
         |> put_session(:user_id, user.id)
         |> delete_session(:return_to)
+        |> clear_flash()
         |> redirect(to: return_to)
 
       {:error, _reason} ->
