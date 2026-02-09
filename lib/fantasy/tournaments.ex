@@ -115,7 +115,7 @@ defmodule Fantasy.Tournaments do
   def list_teams_for_tournament(tournament_id) do
     Team
     |> where([t], t.tournamentId == ^tournament_id)
-    |> order_by([t], asc: t.price, asc: t.name)
+    |> order_by([t], desc: t.price, asc: t.name)
     |> Repo.all()
   end
 
