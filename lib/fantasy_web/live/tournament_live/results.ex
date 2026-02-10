@@ -44,7 +44,7 @@ defmodule FantasyWeb.TournamentLive.Results do
       <% end %>
 
       <div class="text-center space-y-1 text-sm">
-        <p>{length(@results)} players</p>
+        <p>{length(filtered_results(@results))} players</p>
         <p>
           <.link
             navigate={~p"/tournaments/#{@tournament.slug}/popular"}
@@ -79,8 +79,8 @@ defmodule FantasyWeb.TournamentLive.Results do
               </tr>
             </thead>
             <tbody>
-              <%= for result <- @results do %>
-                <tr class={rank_class(result.rank)}>
+              <%= for result <- filtered_results(@results) do %>
+                <tr class={row_class(result, @current_user)}>
                   <td class="font-bold align-middle">{result.rank}</td>
                   <td class="align-middle">{result.user.name}</td>
                   <td class="align-middle">{result.total_points}</td>
@@ -101,8 +101,19 @@ defmodule FantasyWeb.TournamentLive.Results do
     """
   end
 
+  defp filtered_results(results) do
+    Enum.filter(results, fn result -> result.total_points > 0 end)
+  end
+
+  defp row_class(result, current_user) do
+    cond do
+      result.rank in [1, 2, 3] -> rank_class(result.rank)
+      current_user && result.user.id == current_user.id -> "bg-primary/10"
+      true -> ""
+    end
+  end
+
   defp rank_class(1), do: "bg-yellow-500/20"
   defp rank_class(2), do: "bg-gray-400/20"
   defp rank_class(3), do: "bg-amber-700/20"
-  defp rank_class(_), do: ""
 end
