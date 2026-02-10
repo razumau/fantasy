@@ -16,6 +16,7 @@ defmodule Fantasy.Application do
       {Phoenix.PubSub, name: Fantasy.PubSub},
       # Start a worker by calling: Fantasy.Worker.start_link(arg)
       # {Fantasy.Worker, arg},
+      {Finch, name: Fantasy.Finch},
       # Start to serve requests, typically the last entry
       FantasyWeb.Endpoint
     ]

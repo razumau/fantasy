@@ -4,6 +4,7 @@ defmodule FantasyWeb.TournamentLive.Edit do
   alias Fantasy.Tournaments
   alias Fantasy.Tournaments.Tournament
   alias Fantasy.Results
+  alias Fantasy.Spreadsheet
 
   on_mount {FantasyWeb.Live.Hooks, :require_auth}
   on_mount {FantasyWeb.Live.Hooks, :require_admin}
@@ -134,6 +135,22 @@ defmodule FantasyWeb.TournamentLive.Edit do
     end
   end
 
+  @impl true
+  def handle_event("fetch_results", _, socket) do
+    case Spreadsheet.fetch_results(socket.assigns.tournament.id) do
+      {:ok, count} ->
+        teams = Tournaments.list_teams_for_tournament(socket.assigns.tournament.id)
+
+        {:noreply,
+         socket
+         |> assign(teams: teams)
+         |> put_flash(:info, "Updated #{count} teams with results from spreadsheet.")}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, reason)}
+    end
+  end
+
   defp convert_deadline(%{"deadline" => deadline_str, "deadline_offset" => offset_str} = params)
        when is_binary(deadline_str) and deadline_str != "" do
     with {offset_minutes, _} <- Integer.parse(offset_str),
@@ -253,9 +270,19 @@ defmodule FantasyWeb.TournamentLive.Edit do
         <div class="card-body">
           <div class="flex justify-between items-center">
             <h2 class="card-title">Teams</h2>
-            <button type="button" phx-click="calculate_ideal" class="btn btn-secondary btn-sm">
-              Calculate Ideal Pick
-            </button>
+            <div class="flex gap-2">
+              <button
+                :if={@tournament.spreadsheet_url && @tournament.spreadsheet_url != ""}
+                type="button"
+                phx-click="fetch_results"
+                class="btn btn-secondary btn-sm"
+              >
+                Fetch Results from Spreadsheet
+              </button>
+              <button type="button" phx-click="calculate_ideal" class="btn btn-secondary btn-sm">
+                Calculate Ideal Pick
+              </button>
+            </div>
           </div>
 
           <.form for={%{}} phx-submit="save_all_teams" class="space-y-4">
