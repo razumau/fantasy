@@ -58,6 +58,7 @@ defmodule Fantasy.MixProject do
        compile: false,
        depth: 1},
       {:phoenix_live_dashboard, "~> 0.8"},
+      {:ecto_sqlite3_extras, "~> 1.2.0"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
