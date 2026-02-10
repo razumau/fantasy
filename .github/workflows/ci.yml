@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v6
       - uses: erlef/setup-beam@v1
         id: beam
+        with:
+          version-file: .tool-versions
       - uses: actions/cache@v4
         with:
           path: |
