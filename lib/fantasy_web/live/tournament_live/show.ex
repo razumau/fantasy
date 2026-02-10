@@ -239,7 +239,7 @@ defmodule FantasyWeb.TournamentLive.Show do
                   navigate={~p"/tournaments/#{@tournament.slug}/results"}
                   class="link link-primary"
                 >
-                  See picks by other players.
+                  See picks by other players
                 </.link>
               </p>
               <p>
