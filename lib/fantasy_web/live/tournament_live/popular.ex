@@ -2,6 +2,7 @@ defmodule FantasyWeb.TournamentLive.Popular do
   use FantasyWeb, :live_view
 
   alias Fantasy.Tournaments
+  alias Fantasy.Tournaments.Tournament
 
   on_mount {FantasyWeb.Live.Hooks, :maybe_auth}
 
@@ -10,13 +11,17 @@ defmodule FantasyWeb.TournamentLive.Popular do
     tournament = Tournaments.get_tournament_by_slug!(slug)
     popular_teams = Tournaments.get_popular_teams(tournament.id)
     total_picks = length(Tournaments.list_picks_for_tournament(tournament.id))
+    teams = Tournaments.list_teams_for_tournament(tournament.id)
+    has_points = Enum.any?(teams, fn team -> team.points > 0 end)
 
     {:ok,
      assign(socket,
        page_title: "#{tournament.title} — Popular Picks",
        tournament: tournament,
        popular_teams: popular_teams,
-       total_picks: total_picks
+       total_picks: total_picks,
+       has_points: has_points,
+       is_open: Tournament.open?(tournament)
      )}
   end
 
@@ -30,12 +35,22 @@ defmodule FantasyWeb.TournamentLive.Popular do
 
       <div class="text-center space-y-1 text-sm">
         <p>{@total_picks} participants</p>
+        <%= if @is_open do %>
+          <p>
+            <.link
+              navigate={~p"/tournaments/#{@tournament.slug}"}
+              class="link link-primary"
+            >
+              Pick teams
+            </.link>
+          </p>
+        <% end %>
         <p>
           <.link
             navigate={~p"/tournaments/#{@tournament.slug}/results"}
             class="link link-primary"
           >
-            Go to results
+            {if @has_points, do: "See results", else: "See picks by other players"}
           </.link>
         </p>
         <%= if @current_user && @current_user.is_admin do %>

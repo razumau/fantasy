@@ -2,6 +2,7 @@ defmodule FantasyWeb.TournamentLive.Results do
   use FantasyWeb, :live_view
 
   alias Fantasy.Tournaments
+  alias Fantasy.Tournaments.Tournament
   alias Fantasy.Results
 
   on_mount {FantasyWeb.Live.Hooks, :maybe_auth}
@@ -17,7 +18,8 @@ defmodule FantasyWeb.TournamentLive.Results do
        page_title: "#{tournament.title} — Results",
        tournament: tournament,
        results: results,
-       ideal_pick: ideal_pick
+       ideal_pick: ideal_pick,
+       is_open: Tournament.open?(tournament)
      )}
   end
 
@@ -45,6 +47,16 @@ defmodule FantasyWeb.TournamentLive.Results do
 
       <div class="text-center space-y-1 text-sm">
         <p>{length(filtered_results(@results))} players</p>
+        <%= if @is_open do %>
+          <p>
+            <.link
+              navigate={~p"/tournaments/#{@tournament.slug}"}
+              class="link link-primary"
+            >
+              Pick teams
+            </.link>
+          </p>
+        <% end %>
         <p>
           <.link
             navigate={~p"/tournaments/#{@tournament.slug}/popular"}
