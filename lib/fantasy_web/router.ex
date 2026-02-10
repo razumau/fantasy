@@ -1,6 +1,8 @@
 defmodule FantasyWeb.Router do
   use FantasyWeb, :router
 
+  import Phoenix.LiveDashboard.Router
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -50,5 +52,10 @@ defmodule FantasyWeb.Router do
 
     live "/tournaments/create", TournamentLive.Create
     live "/tournaments/:slug/edit", TournamentLive.Edit
+  end
+
+  scope "/admin" do
+    pipe_through [:browser, :require_admin]
+    live_dashboard "/dashboard", metrics: FantasyWeb.Telemetry
   end
 end

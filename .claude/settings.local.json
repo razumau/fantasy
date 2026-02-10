@@ -25,7 +25,8 @@
       "Bash(mix run:*)",
       "Bash(mix format:*)",
       "WebFetch(domain:endoflife.date)",
-      "WebFetch(domain:hexdocs.pm)"
+      "WebFetch(domain:hexdocs.pm)",
+      "Bash(mix deps.get:*)"
     ],
     "deny": []
   }
