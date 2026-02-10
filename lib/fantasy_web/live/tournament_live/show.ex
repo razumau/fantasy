@@ -271,7 +271,7 @@ defmodule FantasyWeb.TournamentLive.Show do
                   navigate={~p"/tournaments/#{@tournament.slug}/popular"}
                   class="link link-primary"
                 >
-                  {if @has_points, do: "Most popular teams", else: "See picks by other players"}
+                  What are the most popular teams?
                 </.link>
               </p>
               <%= if @current_user && @current_user.is_admin do %>
