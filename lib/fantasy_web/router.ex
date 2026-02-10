@@ -32,6 +32,7 @@ defmodule FantasyWeb.Router do
     live "/tournaments/:slug/results", TournamentLive.Results
     live "/tournaments/:slug/popular", TournamentLive.Popular
     live "/tournaments/:slug/stats", TournamentLive.Stats
+    live "/tournaments/:slug", TournamentLive.Show
   end
 
   # Auth routes
@@ -49,12 +50,5 @@ defmodule FantasyWeb.Router do
 
     live "/tournaments/create", TournamentLive.Create
     live "/tournaments/:slug/edit", TournamentLive.Edit
-  end
-
-  # Protected routes (require login)
-  scope "/", FantasyWeb do
-    pipe_through [:browser, :require_auth]
-
-    live "/tournaments/:slug", TournamentLive.Show
   end
 end

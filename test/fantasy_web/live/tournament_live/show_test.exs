@@ -28,10 +28,12 @@ defmodule FantasyWeb.TournamentLive.ShowTest do
       end
     end
 
-    test "redirects unauthenticated users to login", %{tournament: tournament} do
+    test "unauthenticated users can view page with login prompt", %{tournament: tournament} do
       conn = build_conn()
-      result = get(conn, ~p"/tournaments/#{tournament.slug}")
-      assert redirected_to(result) =~ "/auth/login"
+      {:ok, _view, html} = live(conn, ~p"/tournaments/#{tournament.slug}")
+      assert html =~ tournament.title
+      assert html =~ "Log in"
+      refute html =~ "checkbox"
     end
 
     test "selecting a team updates selection sidebar and total price", %{

@@ -4,7 +4,7 @@ defmodule FantasyWeb.TournamentLive.Show do
   alias Fantasy.Tournaments
   alias Fantasy.Tournaments.{Tournament, Pick}
 
-  on_mount {FantasyWeb.Live.Hooks, :require_auth}
+  on_mount {FantasyWeb.Live.Hooks, :maybe_auth}
 
   @impl true
   def mount(%{"slug" => slug}, _session, socket) do
@@ -12,9 +12,15 @@ defmodule FantasyWeb.TournamentLive.Show do
     teams = Tournaments.list_teams_for_tournament(tournament.id)
 
     {version, selected_ids} =
-      case Tournaments.get_user_pick(socket.assigns.current_user.id, tournament.id) do
-        nil -> {0, MapSet.new()}
-        pick -> {pick.version, MapSet.new(Pick.get_team_ids(pick))}
+      case socket.assigns.current_user do
+        nil ->
+          {0, MapSet.new()}
+
+        user ->
+          case Tournaments.get_user_pick(user.id, tournament.id) do
+            nil -> {0, MapSet.new()}
+            pick -> {pick.version, MapSet.new(Pick.get_team_ids(pick))}
+          end
       end
 
     selected_teams = Enum.filter(teams, &MapSet.member?(selected_ids, &1.id))
@@ -134,7 +140,9 @@ defmodule FantasyWeb.TournamentLive.Show do
             <table class="table table-zebra">
               <thead>
                 <tr>
-                  <th></th>
+                  <%= if @current_user do %>
+                    <th></th>
+                  <% end %>
                   <th>Team</th>
                   <th class="text-right">Price</th>
                   <%= if @has_points do %>
@@ -144,17 +152,21 @@ defmodule FantasyWeb.TournamentLive.Show do
               </thead>
               <tbody>
                 <%= for team <- @teams do %>
-                  <tr class={if MapSet.member?(@selected_ids, team.id), do: "!bg-primary/10"}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        class="checkbox checkbox-primary"
-                        checked={MapSet.member?(@selected_ids, team.id)}
-                        disabled={not @is_open}
-                        phx-click="toggle_team"
-                        phx-value-id={team.id}
-                      />
-                    </td>
+                  <tr class={
+                    if @current_user && MapSet.member?(@selected_ids, team.id), do: "!bg-primary/10"
+                  }>
+                    <%= if @current_user do %>
+                      <td>
+                        <input
+                          type="checkbox"
+                          class="checkbox checkbox-primary"
+                          checked={MapSet.member?(@selected_ids, team.id)}
+                          disabled={not @is_open}
+                          phx-click="toggle_team"
+                          phx-value-id={team.id}
+                        />
+                      </td>
+                    <% end %>
                     <td>{team.name}</td>
                     <td class="text-right">{team.price}</td>
                     <%= if @has_points do %>
@@ -169,66 +181,78 @@ defmodule FantasyWeb.TournamentLive.Show do
 
         <div class="-order-1 lg:order-none">
           <div class="card bg-base-200 sticky top-4 p-5 space-y-4">
-            <h2 class="text-xl font-bold">Your Selection</h2>
+            <%= if @current_user do %>
+              <h2 class="text-xl font-bold">Your Selection</h2>
 
-            <div class="text-sm space-y-1">
-              <p>
-                Select up to {@tournament.max_teams} teams. Your result is the sum of their points.
-              </p>
-              <p>
-                <%= if @is_open do %>
-                  You can change your picks until
-                  <time
-                    id="deadline"
-                    phx-hook="LocalTime"
-                    data-format="time-date"
-                    datetime={DateTime.to_iso8601(@tournament.deadline)}
-                  >
-                    {format_deadline(@tournament.deadline)}
-                  </time>
-                  ({time_until_deadline(@tournament.deadline)} left).
-                <% else %>
-                  Tournament is closed.
-                <% end %>
-              </p>
-            </div>
-
-            <div class="divider my-1"></div>
-
-            <div class="text-sm">
-              <p>
-                Spent {@total_price} points, {@tournament.max_price - @total_price} remaining.
-              </p>
-              <progress
-                class="progress progress-primary w-full mt-1"
-                value={@total_price}
-                max={@tournament.max_price}
-              >
-              </progress>
-            </div>
-
-            <%= if @saving do %>
-              <div class="text-sm text-base-content/60">
-                <span class="loading loading-spinner loading-xs"></span> Saving...
-              </div>
-            <% end %>
-
-            <%= if Enum.empty?(@selected_teams) do %>
-              <p class="text-base-content/60">No teams selected yet.</p>
-            <% else %>
               <div class="text-sm space-y-1">
-                <%= for team <- @selected_teams do %>
-                  <p>{team.name} ({team.price})</p>
-                <% end %>
+                <p>
+                  Select up to {@tournament.max_teams} teams. Your result is the sum of their points.
+                </p>
+                <p>
+                  <%= if @is_open do %>
+                    You can change your picks until
+                    <time
+                      id="deadline"
+                      phx-hook="LocalTime"
+                      data-format="time-date"
+                      datetime={DateTime.to_iso8601(@tournament.deadline)}
+                    >
+                      {format_deadline(@tournament.deadline)}
+                    </time>
+                    ({time_until_deadline(@tournament.deadline)} left).
+                  <% else %>
+                    Tournament is closed.
+                  <% end %>
+                </p>
               </div>
-              <%= if @has_points do %>
-                <div class="pt-2 border-t border-base-300">
-                  <div class="flex justify-between font-bold text-sm">
-                    <span>Total Points</span>
-                    <span>{Enum.sum(Enum.map(@selected_teams, & &1.points))}</span>
-                  </div>
+
+              <div class="divider my-1"></div>
+
+              <div class="text-sm">
+                <p>
+                  Spent {@total_price} points, {@tournament.max_price - @total_price} remaining.
+                </p>
+                <progress
+                  class="progress progress-primary w-full mt-1"
+                  value={@total_price}
+                  max={@tournament.max_price}
+                >
+                </progress>
+              </div>
+
+              <%= if @saving do %>
+                <div class="text-sm text-base-content/60">
+                  <span class="loading loading-spinner loading-xs"></span> Saving...
                 </div>
               <% end %>
+
+              <%= if Enum.empty?(@selected_teams) do %>
+                <p class="text-base-content/60">No teams selected yet.</p>
+              <% else %>
+                <div class="text-sm space-y-1">
+                  <%= for team <- @selected_teams do %>
+                    <p>{team.name} ({team.price})</p>
+                  <% end %>
+                </div>
+                <%= if @has_points do %>
+                  <div class="pt-2 border-t border-base-300">
+                    <div class="flex justify-between font-bold text-sm">
+                      <span>Total Points</span>
+                      <span>{Enum.sum(Enum.map(@selected_teams, & &1.points))}</span>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            <% else %>
+              <h2 class="text-xl font-bold">Pick Your Teams</h2>
+              <p class="text-sm">
+                <.link
+                  href={~p"/auth/login?#{%{return_to: ~p"/tournaments/#{@tournament.slug}"}}"}
+                  class="link link-primary"
+                >
+                  Log in to pick teams
+                </.link>
+              </p>
             <% end %>
 
             <div class="divider my-1"></div>
