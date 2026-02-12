@@ -34,7 +34,6 @@ defmodule FantasyWeb.Router do
     live "/tournaments/:slug/results", TournamentLive.Results
     live "/tournaments/:slug/popular", TournamentLive.Popular
     live "/tournaments/:slug/stats", TournamentLive.Stats
-    live "/tournaments/:slug", TournamentLive.Show
   end
 
   # Auth routes
@@ -52,6 +51,13 @@ defmodule FantasyWeb.Router do
 
     live "/tournaments/create", TournamentLive.Create
     live "/tournaments/:slug/edit", TournamentLive.Edit
+  end
+
+  # Catch-all slug route (must come after /tournaments/create to avoid matching "create" as a slug)
+  scope "/", FantasyWeb do
+    pipe_through :browser
+
+    live "/tournaments/:slug", TournamentLive.Show
   end
 
   scope "/admin" do
