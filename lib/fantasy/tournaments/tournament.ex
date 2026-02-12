@@ -13,6 +13,7 @@ defmodule Fantasy.Tournaments.Tournament do
     field :slug, :string
     field :max_teams, :integer, default: 5, source: :maxTeams
     field :max_price, :integer, default: 150, source: :maxPrice
+    field :description, :string
     field :spreadsheet_url, :string, source: :spreadsheetUrl
     field :team_column_name, :string, source: :teamColumnName
     field :result_column_name, :string, source: :resultColumnName
@@ -33,6 +34,7 @@ defmodule Fantasy.Tournaments.Tournament do
       :deadline,
       :title,
       :slug,
+      :description,
       :max_teams,
       :max_price,
       :spreadsheet_url,
@@ -53,6 +55,7 @@ defmodule Fantasy.Tournaments.Tournament do
     |> cast(attrs, [
       :deadline,
       :title,
+      :description,
       :max_teams,
       :max_price,
       :spreadsheet_url,

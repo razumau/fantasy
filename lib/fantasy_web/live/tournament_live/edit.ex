@@ -198,6 +198,13 @@ defmodule FantasyWeb.TournamentLive.Edit do
                 required
               />
 
+              <legend class="fieldset-legend">Description</legend>
+              <textarea
+                name="tournament[description]"
+                class="textarea textarea-bordered w-full"
+                placeholder="Optional description shown on the picking page. URLs will be rendered as links."
+              >{@tournament.description}</textarea>
+
               <legend class="fieldset-legend">Max Teams</legend>
               <input
                 type="number"

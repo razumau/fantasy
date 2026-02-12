@@ -126,6 +126,9 @@ defmodule FantasyWeb.TournamentLive.Show do
     <div class="space-y-6">
       <div>
         <h1 class="text-3xl font-bold">{@tournament.title}</h1>
+        <p :if={@tournament.description} class="mt-2 text-base-content/80">
+          {raw(linkify(@tournament.description))}
+        </p>
       </div>
 
       <%= if @error do %>
@@ -311,4 +314,14 @@ defmodule FantasyWeb.TournamentLive.Show do
   end
 
   defp time_until_deadline(_), do: ""
+
+  defp linkify(text) do
+    text
+    |> Phoenix.HTML.html_escape()
+    |> Phoenix.HTML.safe_to_string()
+    |> String.replace(
+      ~r{https?://[^\s<]+},
+      fn url -> ~s(<a href="#{url}" class="link link-primary" target="_blank">#{url}</a>) end
+    )
+  end
 end
