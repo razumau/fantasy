@@ -11,12 +11,16 @@ defmodule FantasyWeb.TournamentLive.Create do
   def mount(_params, _session, socket) do
     changeset = Tournament.create_changeset(%Tournament{}, %{})
 
+    tz_offset =
+      if connected?(socket), do: get_connect_params(socket)["timezone_offset"] || 0, else: 0
+
     {:ok,
      assign(socket,
        page_title: "Create Tournament",
        changeset: changeset,
        deadline_str: "",
-       teams_text: ""
+       teams_text: "",
+       tz_offset: tz_offset
      )}
   end
 
@@ -38,7 +42,10 @@ defmodule FantasyWeb.TournamentLive.Create do
 
   @impl true
   def handle_event("create", params, socket) do
-    tournament_params = convert_deadline(Map.get(params, "tournament", %{}))
+    tournament_params =
+      Map.get(params, "tournament", %{})
+      |> convert_deadline(socket.assigns.tz_offset)
+
     teams_text = Map.get(params, "teams_text", "")
 
     teams_data = parse_teams(teams_text)
@@ -58,26 +65,20 @@ defmodule FantasyWeb.TournamentLive.Create do
     end
   end
 
-  defp convert_deadline(%{"deadline" => deadline_str, "deadline_offset" => offset_str} = params)
+  defp convert_deadline(%{"deadline" => deadline_str} = params, offset_minutes)
        when is_binary(deadline_str) and deadline_str != "" do
-    with {offset_minutes, _} <- Integer.parse(offset_str),
-         {:ok, naive} <- NaiveDateTime.from_iso8601(deadline_str <> ":00") do
-      utc_naive = NaiveDateTime.add(naive, offset_minutes * 60, :second)
-      {:ok, dt} = DateTime.from_naive(utc_naive, "Etc/UTC")
-      Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
-    else
-      _ -> params
+    case NaiveDateTime.from_iso8601(deadline_str <> ":00") do
+      {:ok, naive} ->
+        utc_naive = NaiveDateTime.add(naive, offset_minutes * 60, :second)
+        {:ok, dt} = DateTime.from_naive(utc_naive, "Etc/UTC")
+        Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
+
+      _ ->
+        params
     end
   end
 
-  defp convert_deadline(%{"deadline" => deadline_str} = params) when is_binary(deadline_str) do
-    case DateTime.from_iso8601(deadline_str <> ":00Z") do
-      {:ok, dt, _} -> Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
-      _ -> params
-    end
-  end
-
-  defp convert_deadline(params), do: params
+  defp convert_deadline(params, _offset), do: params
 
   defp parse_teams(text) do
     text
@@ -167,13 +168,6 @@ defmodule FantasyWeb.TournamentLive.Create do
                 class="input input-bordered w-full"
                 required
               />
-              <input
-                type="hidden"
-                name="tournament[deadline_offset]"
-                id="deadline-offset"
-                phx-hook="TimezoneOffset"
-              />
-
               <legend class="fieldset-legend">Spreadsheet URL (optional)</legend>
               <input
                 type="url"

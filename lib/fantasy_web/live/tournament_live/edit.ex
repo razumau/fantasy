@@ -24,7 +24,8 @@ defmodule FantasyWeb.TournamentLive.Edit do
        tournament: tournament,
        teams: teams,
        changeset: changeset,
-       deadline_str: format_datetime_local(tournament.deadline, tz_offset)
+       deadline_str: format_datetime_local(tournament.deadline, tz_offset),
+       tz_offset: tz_offset
      )}
   end
 
@@ -42,7 +43,7 @@ defmodule FantasyWeb.TournamentLive.Edit do
 
   @impl true
   def handle_event("save", %{"tournament" => params}, socket) do
-    params = convert_deadline(params)
+    params = convert_deadline(params, socket.assigns.tz_offset)
 
     case Tournaments.update_tournament(socket.assigns.tournament, params) do
       {:ok, tournament} ->
@@ -151,26 +152,20 @@ defmodule FantasyWeb.TournamentLive.Edit do
     end
   end
 
-  defp convert_deadline(%{"deadline" => deadline_str, "deadline_offset" => offset_str} = params)
+  defp convert_deadline(%{"deadline" => deadline_str} = params, offset_minutes)
        when is_binary(deadline_str) and deadline_str != "" do
-    with {offset_minutes, _} <- Integer.parse(offset_str),
-         {:ok, naive} <- NaiveDateTime.from_iso8601(deadline_str <> ":00") do
-      utc_naive = NaiveDateTime.add(naive, offset_minutes * 60, :second)
-      {:ok, dt} = DateTime.from_naive(utc_naive, "Etc/UTC")
-      Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
-    else
-      _ -> params
+    case NaiveDateTime.from_iso8601(deadline_str <> ":00") do
+      {:ok, naive} ->
+        utc_naive = NaiveDateTime.add(naive, offset_minutes * 60, :second)
+        {:ok, dt} = DateTime.from_naive(utc_naive, "Etc/UTC")
+        Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
+
+      _ ->
+        params
     end
   end
 
-  defp convert_deadline(%{"deadline" => deadline_str} = params) when is_binary(deadline_str) do
-    case DateTime.from_iso8601(deadline_str <> ":00Z") do
-      {:ok, dt, _} -> Map.put(params, "deadline", DateTime.to_unix(dt, :millisecond))
-      _ -> params
-    end
-  end
-
-  defp convert_deadline(params), do: params
+  defp convert_deadline(params, _offset), do: params
 
   @impl true
   def render(assigns) do
@@ -227,13 +222,6 @@ defmodule FantasyWeb.TournamentLive.Edit do
                 class="input input-bordered w-full"
                 required
               />
-              <input
-                type="hidden"
-                name="tournament[deadline_offset]"
-                id="deadline-offset"
-                phx-hook="TimezoneOffset"
-              />
-
               <legend class="fieldset-legend">Spreadsheet URL</legend>
               <input
                 type="url"

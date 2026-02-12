@@ -43,24 +43,6 @@ const Hooks = {
         this.el.textContent = dt.toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
       }
     }
-  },
-  TimezoneOffset: {
-    mounted() {
-      const form = this.el.closest("form");
-      const dtInput = form.querySelector("input[type='datetime-local']");
-      const update = () => {
-        if (dtInput && dtInput.value) {
-          this.el.value = new Date(dtInput.value).getTimezoneOffset();
-        } else {
-          this.el.value = new Date().getTimezoneOffset();
-        }
-      };
-      if (dtInput) {
-        dtInput.addEventListener("input", update);
-        dtInput.addEventListener("change", update);
-      }
-      update();
-    }
   }
 };
 
