@@ -46,7 +46,7 @@ defmodule FantasyWeb.TournamentLive.Results do
       <% end %>
 
       <div class="text-center space-y-1 text-sm">
-        <p>{length(filtered_results(@results))} players</p>
+        <p>{length(@results)} {if length(@results) > 1, do: "players", else: "player"}</p>
         <%= if @is_open do %>
           <p>
             <.link

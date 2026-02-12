@@ -34,7 +34,7 @@ defmodule FantasyWeb.TournamentLive.Popular do
       </div>
 
       <div class="text-center space-y-1 text-sm">
-        <p>{@total_picks} participants</p>
+        <p>{@total_picks} {if @total_picks > 1, do: "players", else: "player"}</p>
         <%= if @is_open do %>
           <p>
             <.link
