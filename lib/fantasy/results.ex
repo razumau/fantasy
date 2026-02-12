@@ -35,6 +35,7 @@ defmodule Fantasy.Results do
 
     if Enum.any?(results, &(&1.total_points != 0)) do
       results
+      |> Enum.filter(&{&1.total_points > 0})
       |> Enum.sort_by(&{-&1.total_points, &1.user.name})
       |> add_rankings()
     else
