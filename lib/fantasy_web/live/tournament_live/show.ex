@@ -303,8 +303,10 @@ defmodule FantasyWeb.TournamentLive.Show do
 
     cond do
       diff_seconds <= 0 -> "no time"
-      diff_seconds < 3600 -> "#{div(diff_seconds, 60)} minutes"
+      diff_seconds < 120 -> "#{diff_seconds} seconds"
+      diff_seconds < 7200 -> "#{div(diff_seconds, 60)} minutes"
       diff_seconds < 86400 -> "#{div(diff_seconds, 3600)} hours"
+      diff_seconds < 86400 * 2 -> "1 day"
       diff_seconds < 86400 * 30 -> "#{div(diff_seconds, 86400)} days"
       true -> "more than a month"
     end
