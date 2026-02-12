@@ -128,6 +128,13 @@ defmodule FantasyWeb.TournamentLive.Create do
                 required
               />
 
+              <legend class="fieldset-legend">Description</legend>
+              <textarea
+                name="tournament[description]"
+                class="textarea textarea-bordered w-full"
+                placeholder="Optional description shown on the picking page. URLs will be rendered as links."
+              >{@changeset.changes[:description]}</textarea>
+
               <legend class="fieldset-legend">Slug</legend>
               <input
                 type="text"
