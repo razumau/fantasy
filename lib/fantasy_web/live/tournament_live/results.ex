@@ -114,7 +114,11 @@ defmodule FantasyWeb.TournamentLive.Results do
   end
 
   defp filtered_results(results) do
-    Enum.filter(results, fn result -> result.total_points > 0 end)
+    if Enum.any?(results, fn result -> result.total_points > 0 end) do
+      Enum.filter(results, fn result -> result.total_points > 0 end)
+    else
+      results
+    end
   end
 
   defp row_class(result, current_user) do
