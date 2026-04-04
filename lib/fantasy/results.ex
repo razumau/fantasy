@@ -68,10 +68,15 @@ defmodule Fantasy.Results do
   Returns a list of user names.
   """
   def get_tournament_winners(tournament_id) do
-    tournament_id
-    |> get_tournament_results()
-    |> Enum.filter(&(&1.rank == 1))
-    |> Enum.map(& &1.user.name)
+    results = get_tournament_results(tournament_id)
+
+    if Enum.all?(results, &(&1.total_points == 0)) do
+      []
+    else
+      results
+      |> Enum.filter(&(&1.rank == 1))
+      |> Enum.map(& &1.user.name)
+    end
   end
 
   @doc """
