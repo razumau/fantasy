@@ -12,6 +12,30 @@ defmodule FantasyWeb.TournamentLive.Results do
     tournament = Tournaments.get_tournament_by_slug!(slug)
     results = Results.get_tournament_results(tournament.id)
     ideal_pick = Results.get_ideal_pick_with_teams(tournament.id)
+    teams = Tournaments.list_teams_for_tournament(tournament.id)
+
+    sorted_by_value =
+      teams
+      |> Enum.filter(&(&1.points > 0))
+      |> Enum.sort_by(&(&1.points - &1.price), :desc)
+
+    total_players = length(results)
+
+    pick_counts =
+      results
+      |> Enum.flat_map(fn r -> Enum.map(r.teams, & &1.id) end)
+      |> Enum.frequencies()
+
+    annotate = fn team_list ->
+      Enum.map(team_list, fn team ->
+        count = Map.get(pick_counts, team.id, 0)
+        pct = if total_players > 0, do: count / total_players * 100, else: 0.0
+        Map.put(team, :pick_pct, pct)
+      end)
+    end
+
+    overachievers = sorted_by_value |> Enum.take(5) |> annotate.()
+    underachievers = sorted_by_value |> Enum.reverse() |> Enum.take(5) |> annotate.()
 
     {:ok,
      assign(socket,
@@ -19,6 +43,8 @@ defmodule FantasyWeb.TournamentLive.Results do
        tournament: tournament,
        results: results,
        ideal_pick: ideal_pick,
+       overachievers: overachievers,
+       underachievers: underachievers,
        is_open: Tournament.open?(tournament)
      )}
   end
@@ -41,6 +67,33 @@ defmodule FantasyWeb.TournamentLive.Results do
             <%= for team <- teams do %>
               <p>{team.name} ({team.price}) — {team.points}</p>
             <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%= if @overachievers != [] do %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="border border-base-300 bg-base-200 rounded-lg p-4">
+            <p class="mb-2">We underrated these teams:</p>
+            <div class="space-y-1">
+              <%= for {team, idx} <- Enum.with_index(@overachievers) do %>
+                <p>
+                  {team.name}: {team.price} → {team.points}
+                  (<%= if idx == 0 do %>picked by {format_pct(team.pick_pct)} of players<% else %>{format_pct(team.pick_pct)}<% end %>)
+                </p>
+              <% end %>
+            </div>
+          </div>
+          <div class="border border-base-300 bg-base-200 rounded-lg p-4">
+            <p class="mb-2">We expected more from these teams:</p>
+            <div class="space-y-1">
+              <%= for {team, idx} <- Enum.with_index(@underachievers) do %>
+                <p>
+                  {team.name}: {team.price} → {team.points}
+                  (<%= if idx == 0 do %>picked by {format_pct(team.pick_pct)} of players<% else %>{format_pct(team.pick_pct)}<% end %>)
+                </p>
+              <% end %>
+            </div>
           </div>
         </div>
       <% end %>
@@ -119,6 +172,10 @@ defmodule FantasyWeb.TournamentLive.Results do
       current_user && result.user.id == current_user.id -> "bg-primary/10"
       true -> ""
     end
+  end
+
+  defp format_pct(pct) do
+    :erlang.float_to_binary(pct, decimals: 2) <> "%"
   end
 
   defp rank_class(1), do: "bg-yellow-500/20"
